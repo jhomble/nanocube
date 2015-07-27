@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>FourSquare Data</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+		<link rel="stylesheet" href="css/leaflet.css"/>
+		<link rel="stylesheet" href="css/leaflet.draw.css"/>
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<style type='text/css'>
+			.leaflet-container {
+				background: #000;
+			} 
+
+			.axis path,
+			.axis line{
+				fill: none;
+				stroke: #fff;
+				shape-rendering: crispEdges;
+			}
+
+			.axis text {
+				fill: #fff;
+				stroke:none;
+			}
+
+			.brush .extent {
+				stroke: #fff;
+				fill-opacity: .125;
+				shape-rendering: crispEdges;
+			}
+
+			html,body{
+				height: 100%;
+				width: 100%;
+				margin: 0px;
+				padding: 0px;
+				overflow: hidden;
+			}
+
+			.download-icon a {
+				background-image: url('css/images/fa-cloud-download.png');
+				background-repeat: no-repeat;
+			}
+			
+			.timeseries-icon a {
+				background-image: url('css/images/fa-area-chart.png');
+				background-repeat: no-repeat;
+			}
+
+			#map { 
+				height: 100%; 
+				width: 100%; 
+			}
+
+			#infoTip { 
+				right:10px; 
+				top:4px; 
+				position:absolute; 
+				color: white;
+				font-family:"Arial"; 
+				font-size:75%;
+				text-align:right;
+			}
+
+			#timeseries, #timeseriesTip {
+				position: absolute;
+			}
+
+			#eventtypeHistogramCanvas {
+				width: 200;
+				height: 600;
+				position: absolute;
+				top: 40px;
+				right: 10px;
+			}
+
+			#goldsteinHistogramCanvas {
+				width: 200;
+				height: 600;
+				position: absolute;
+				top: 425px;
+				right: 10px;
+      }
+
+      #help {
+        width: 35px;
+        height: 24px;
+        position: absolute;
+        top: 430px;
+        left: 10px;
+        color: black;
+        background: white;
+        font-family: sans-serif;
+        font-size: 12px;
+        padding: 4px;
+        border-radius: 4px; /* future proofing */
+      }
+
+      #helpcontent {
+        width: 500px;
+        height: 400px;
+        position: absolute;
+        top: 30px;
+        left: 60px;
+        background: rgb(220,220,220);
+        color: black;
+        font-family: sans-serif;
+        font-size: 12px;
+        display: none;
+        padding: 10px;
+        border-radius: 10px; /* future proofing */
+			}
+		</style>
+
+		<!-- Start of scripts-->
+		<!-- jQuery, Leaflet, Underscore includes -->
+		<script src="lib/jquery-1.11.0.min.js"></script>
+		<script src="lib/flot/jquery.flot.js"></script>
+		<script src="lib/flot/jquery.flot.time.js"></script>
+		<script src="lib/flot/jquery.flot.selection.js"></script>
+		
+		<script src="lib/underscore-min.js"></script>
+		<script src="lib/d3.v3.js" charset="utf-8"></script>
+
+		<script src="lib/leaflet-src.js"></script>
+		<script src="lib/leaflet.draw-src.js"></script>
+
+		<script src="js/bootstrap.min.js"></script>
+
+		<!-- Custom includes -->
+		<script src="nanocube2.js"></script>
+		<script src="functions.js"></script>
+		<script src="timeseries.js"></script>
+		<script src="histogram.js"></script>
+		<script src="constrainer.js"></script>
+		<script src="drawer.js"></script>
+		<script src="lib/colorbrewer.js"></script>
+
+		<!-- Main -->
+		<script src="main.js"></script>
+		
+		<!-- extensions -->
+		<script src="features.js"></script>
+		<script src="anomaly.js"></script>
+		<!--script src="exportdata.js"></script-->
+    <script type="text/javascript">
+      $(function(){
+        $('#help').hover(function() {
+          $('#helpcontent').toggle();
+        });
+      });
+    </script>
+	</head>
+
+	<body>
+		<!-- the map -->
+		<div id="map"></div>
+    			
+
+		<!-- text where we'll put information -->
+		<div id="infoTip"></div>
+    	
+		<!-- The histogram -->
+		<div>
+			<canvas id="eventtypeHistogramCanvas"></canvas>
+			<!-- goldsteinHistogramCanvas moved below to now be on TOP (z-layer) of timeseries -->
+		</div>
+
+
+		<!-- timeseries stuff -->
+		<div id="timeseries"></div>
+		
+		<!-- goldsteinHistogramCanvas now is on TOP of timeseries -->
+		<!-- <canvas id="goldsteinHistogramCanvas"></canvas> -->
+
+    <div id=help>Help</div>
+    <div id=helpcontent class="helpcontent">
+      <div>
+      	<button type="button" class="btn btn-primary">Primary</button>
+      	Foursqaure data: Summer Interns 2015
+      </div>	
+	</body>
+</html>
