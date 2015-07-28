@@ -1,6 +1,5 @@
 //test1
 // change to the name of your nanocube server port here
-var port = "29502";
 // time start and end for the timeline of data
 var timestart = "1";
 var timeend = "9";
@@ -9,21 +8,6 @@ var minlevel = "2";
 var maxlevel = "12";
 var _currList = [];
 var _featureList = [];
-
-function featureSelected(){
-    var index = $("#selectFeature").val();
-    if (index === _currSelectedFeature){
-        $("#selectFeature").val([]);
-        $("#featureDescription").text("");
-        _currSelectedFeature = null;
-        disableFeatureDelete();
-    } else if (index !== null){
-        forceConstraints(_featureList[index]);
-        $("#featureDescription").text(_featureList[index].description);
-        _currSelectedFeature = index;
-        enableFeatureDelete();
-    }
-}
 
 function anomalySelected(){
     var index = $("#anomalyList").val();
@@ -159,7 +143,14 @@ function addAnomalyButton(){
         _click: function (e){
             L.DomEvent.stopPropagation(e);
             L.DomEvent.preventDefault(e);
-            $("#AnomPopout").toggle();
+            $("#mainAnomaliesDiv").toggle();
+            //console.log($('#featuresDiv').is(":visible"))
+            if($('#featuresDiv').is(":visible")){
+                $("#leaflet-bar-part").css("backgroundPosition", "2px 2px");
+                $("#leaflet-bar-part").title = 'Show the list of saved events';
+                $("#featuresDiv").hide();
+                disableFeatureDelete();
+            }
             //alert("Magical Unicorns")
         }
     });
@@ -167,7 +158,7 @@ function addAnomalyButton(){
     map.addControl(new anomalyButton());
 }
 
-function addAnomalyContainer(){
+/*function addAnomalyContainer(){
     var anomalyContainer = L.Control.extend({
         options: {
             position: 'topleft',
@@ -193,12 +184,12 @@ function addAnomalyContainer(){
              if (this.anom.title === 'Show the list of Anomalies'){
                 this.anom.style.backgroundPosition = "2px -20px";
                 this.anom.title = 'Hide the list of Anomalies';
-                $("#anomaliesDiv").show();
+                $("#newAnomaliesDiv").show();
 
             } else {
                 this.anom.style.backgroundPosition = "2px 2px";
                 this.anom.title = 'Show the list of Anomalies';
-                $("#anomaliesDiv").hide();
+                $("#newAnomaliesDiv").hide();
             }         
 
 
@@ -206,27 +197,35 @@ function addAnomalyContainer(){
     });
 
     map.addControl(new anomalyContainer());
-}
-
+}*/
+// You may have to change pixels... have fun
 $(function(){
-   // var mainAnomaliesDiv = $('<div>', {id: "mainAnomaliesDiv"})
-
-    //;
-    var newAnomaliesDiv = $('<div>', {id: "anomaliesDiv"})
-        .addClass("pull-left")
+    var mainAnomaliesDiv = $('<div>', {id: "mainAnomaliesDiv"})
         .addClass("container")
         .css("left", "50px")
         .css("top", "30px")
         .css("position", "absolute")
-        .css("width", "220px")
+        .css("width", "300px")
         .css("display", "none")
+    ;
+    var newAnomaliesDiv = $('<div>', {id: "anomaliesDiv"})
+        .addClass("pull-left")
+        .addClass("container")
+        .css("left", "1px")
+        .css("top", "157x")
+        .css("position", "absolute")
+        .css("width", "100%")
+        .show()
     ;
 
     var anomalyList = $('<select>', { id: "anomalyList" })
-        .addClass("form -ontrol")
+        .addClass("form-control")
         .attr("size", 15)
         .css("width", "100%")
         .css("height", "175px")
+        .click(function(){
+            anomalySelected()
+        })
 
     ;
 
@@ -238,8 +237,8 @@ $(function(){
     ;
     var saveAnomaly = $('<button>', {id: "anomalyButtonSave"})
         .addClass("btn btn-primary")
-        .css("width", "190px")
-        .css("height", "30px")
+        .css("width", "100%")
+        .css("height", "15%px")
         .text("Save Anomaly")
         .click(function(){
             var value = $("#anomalyList").val();
@@ -252,20 +251,22 @@ $(function(){
                         break;
                     }
                 }*/
-                item = _currList[value]
-                console.log(item)
+                var item = _currList[value]
                 $('#selectFeature').append($(document.createElement("option"))
                     .attr("value", _featureList.length)
                     .text(item.name)
                 );
 
                 _featureList.push(item)
+                console.log(window.location.pathname)
+                var dataToSend = { name: item.name, path: window.location.pathname};
+                console.log(dataToSend)
                 $.ajax({
-                    url: "/cgi-bin/writeToFeatureList.py",
+                    url: "/cgi-bin/savefeature.py",
                     type: "POST",
-                    data: JSON.stringify(_featureList),
+                    data: JSON.stringify(dataToSend),
                     success: function(response){
-                        alert("The Magical Unicorn has Landed")
+                        alert("Point of Interest Saved")
                     },
                     error: function(jqXHR, textStatus, errorThrown){
                         alert("Feature could not be added on server!");
@@ -279,7 +280,7 @@ $(function(){
     newAnomaliesDiv.append(anomalyDescription);
     newAnomaliesDiv.append(saveAnomaly);
 
-    $("body").append(newAnomaliesDiv);
+    //$("body").append(newAnomaliesDiv);
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -291,6 +292,7 @@ $(function(){
         .css("width", "270px")
         .css("height", "150px")
         .css("display", "none")
+        .show()
 
     ;
 
@@ -299,7 +301,7 @@ $(function(){
     AnomPopout.append('<p class="text-primary"><b>Choose anomaly detection type</b></p>');
     var anomalyList = $('<button>', { id: "anomalyList" })
         .css("width", "100%")
-        .css("height", "300px")
+        .css("height", "285px")
     ;
     var anombutton1 = $('<input type="radio" name="rad" id="test1" value="1">');
     var anombutton2 = $('<input type="radio" name="rad" id="test2" value="2">');
@@ -318,10 +320,12 @@ $(function(){
 
             if($('#test1').is(':checked')) {
                 console.log("running")
+                $('#anomalyList').empty()
                 fullanomalydetection();
             }
             else if ($('#test2').is(':checked')) {
-                //alert("Running detection");
+                console.log("Running detection")
+                $('#anomalyList').empty()
                 selectedAnomalyDetection();
             }
             else {
@@ -353,12 +357,15 @@ $(function(){
     AnomPopout.append(anombutton3);
     AnomPopout.append(loadingBar)
     AnomPopout.append(loadingmessage);
-    newAnomaliesDiv.append(AnomPopout);
+    //newAnomaliesDiv.append(AnomPopout);
 
     //$("body").append(AnomPopout);
+    mainAnomaliesDiv.append(AnomPopout)
+    mainAnomaliesDiv.append(newAnomaliesDiv)
+    $("body").append(mainAnomaliesDiv);
 
     addAnomalyButton();
-    addAnomalyContainer();
+    //addAnomalyContainer();
 
 
 });

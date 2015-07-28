@@ -44,21 +44,21 @@ try:
 		dict3 = {}
 		dict4 = {}
 		#We will zoom in one level to get the four corners of the box
-		dict1['level'] = level+1
-		dict1['x'] = 2*currx
-		dict1['y'] = 2*curry
+		dict1['level'] = level+5
+		dict1['x'] = 32*currx
+		dict1['y'] = 32*curry
 		anomdictlist.append(dict1)
-		dict2['level'] = level+1
-		dict2['x'] = 2*currx
-		dict2['y'] = (2*curry)+2
+		dict2['level'] = level+5
+		dict2['x'] = 32*currx
+		dict2['y'] = (curry+1)*32
 		anomdictlist.append(dict2)
-		dict3['level'] = level+1
-		dict3['x'] = (2*currx)+2
-		dict3['y'] = (2*curry)+2
+		dict3['level'] = level+5
+		dict3['x'] = (currx+1)*32
+		dict3['y'] = (curry+1)*32
 		anomdictlist.append(dict3)
-		dict4['level'] = level+1
-		dict4['x'] = (2*currx)+2
-		dict4['y'] = 2*curry
+		dict4['level'] = level+5
+		dict4['x'] = (currx+1)*32
+		dict4['y'] = 32*curry
 		anomdictlist.append(dict4)
 
 		currdict['tileSelection'] = anomdictlist
@@ -106,8 +106,7 @@ try:
 
 
 
-	with open("feature_list.js", "w") as fout:
-                fout.write(json.dumps(jsonlist, sort_keys=True, indent=4, separators=(",",": ")))
+	
 
 except SystemExit:
     pass

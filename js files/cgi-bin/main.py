@@ -39,6 +39,7 @@ def fullAnomaly(port, timestart, timeend, minlevel, maxlevel):
 	#print "did traversal initialize"
 	return a
 
+################################################################################################
 # Main function
 # First initialze the queue
 # Process all entries in the queue until empty

@@ -91,6 +91,21 @@ function createFeatureFromCurrent(){
     };
 }
 
+function featureSelected(){
+    var index = $("#selectFeature").val();
+    if (index === _currSelectedFeature){
+        $("#selectFeature").val([]);
+        $("#featureDescription").text("");
+        _currSelectedFeature = null;
+        disableFeatureDelete();
+    } else if (index !== null){
+        forceConstraints(_featureList[index]);
+        $("#featureDescription").text(_featureList[index].description);
+        _currSelectedFeature = index;
+        enableFeatureDelete();
+    }
+}
+
 function validateFeatureAndSave(){
     var name = $("#featureSaveName").val();
     var description = $("#featureSaveDescription").val();
@@ -193,7 +208,7 @@ function deleteCurrentFeature(){
 }
 
 function addFeatureButtons(){
-    var FeatureButton = L.Control.extend({
+    var FeatureButton = L.Control.extend( {
         options: {
             position: 'topleft',
         },
@@ -232,12 +247,16 @@ function addFeatureButtons(){
             L.DomEvent.preventDefault(e);
 
             if (this.linkShow.title === 'Show the list of saved events'){
-                this.linkShow.style.backgroundPosition = "2px -20px";
+                //this.linkShow.style.backgroundPosition = "2px -20px";
                 this.linkShow.title = 'Hide the list of saved events';
                 $("#featuresDiv").show();
                 if ($("#selectFeature").val() !== null){
                     enableFeatureDelete();
                 }
+                if ($('#mainAnomaliesDiv').is(":visible")){
+                    $('#mainAnomaliesDiv').hide()
+                }
+
             } else {
                 this.linkShow.style.backgroundPosition = "2px 2px";
                 this.linkShow.title = 'Show the list of saved events';
@@ -267,13 +286,16 @@ function addFeatureButtons(){
 $(function(){
     //add the HTML for the selector
     var mainDiv = $('<div>', { id: "featuresDiv" })
+        .addClass("container")
         .css("left", "50px")
-        .css("top", "10px")
+        .css("top", "30px")
         .css("position", "absolute")
-        .css("width", "220px")
+        .css("width", "300px")
+        .css("height", "175px")
         .css("display", "none")
     ;
     var selectList = $('<select>', { id: "selectFeature" })
+        .addClass("form-control")
         .attr("size", 15)
         .css("width", "100%")
         .css("height", "175px")
@@ -284,9 +306,32 @@ $(function(){
         .css("height", "150px")
         .css("weight", "100%")
     ;
-    mainDiv.append(selectList);
-    mainDiv.append(description);
-    $("body").append(mainDiv);
+    var saveFeatureHeader = $('<p id="saveFeatureHeader" class="text-primary"><b>Saved Points of Interest</b></p>')
+        .css("background-color", "white")
+        .css("width", "100%")
+
+    ;
+    var headerDiv = $('<div>', { id: "headerDiv" })
+        .addClass("container")
+        .css("width", "100%")
+        .css("background-color", "white")
+        .css("border", "2px solid orange")
+    ;
+    /*var removeFeatureButton = $('<button>', { id: "removeFeatureButton" })
+        .addClass("btn btn-danger")
+        .css("width", "100%")
+        .css("height", "20%")
+        .text("Delete Point of Interest")
+        .click(function(){
+            deleteCurrentFeature()
+        })
+    ;*/
+    headerDiv.append(saveFeatureHeader)
+    mainDiv.append(headerDiv)
+    mainDiv.append(selectList)
+    mainDiv.append(description)
+    //mainDiv.append(removeFeatureButton)
+    $("body").append(mainDiv)
 
     //load the feature file
     $.ajax({
