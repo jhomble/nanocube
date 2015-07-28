@@ -1,4 +1,3 @@
-//test1
 // change to the name of your nanocube server port here
 // time start and end for the timeline of data
 var timestart = "1";
@@ -76,7 +75,10 @@ function selectedAnomalyDetection(){
     var newFeature = createFeatureFromCurrent();
     newFeature.name = "Run # " + _index.toString() + " " ;
     _index = _index + 1;
-
+    var tiles  = constrainer.getTiles();
+    if (tiles == null){
+        alert("please choose a region to run detection on");
+    }
     //var tiles  = constrainer.getTiles();
     //var dataToSend = { tileSelection: tiles };
     //console.log(newFeature);
@@ -92,24 +94,30 @@ function selectedAnomalyDetection(){
             console.log(response)
             var list = []
             list = JSON.parse(response)
-            //console.log(list)
-            if (response.localeCompare("not a square\n") == 0){
-                alert("please don't use the polygon tool")
+            if (tiles.length != 4){
+                alert("No zooming was done for this anomaly detection. For zooming please use the square tool")
+                console.log(response)
+            }
+            else if (tiles[0]['x'] == tiles[1]['x'] && tiles[2]['x'] == tiles[3]['x'] && tiles[0]['y'] == tiles[3]['y'] && tiles[1]['y'] == tiles[2]['y']){
+                alert("Region detection run with zooming")
             }
             else {
-                for (var i = 0; i < list.length; i++){
-                    var item = list[i];
-                    //console.log(item)
-                
-                    $("#anomalyList").append( $(document.createElement("option"))
-                        .text(item.name)
-                        .attr("value", _currList.length)
-                    );
-                    
-                _currList.push(item);
-                hideFeatureSaveDialog();
-                }
+                alert("No zooming was done for this anomaly detection. For zooming please use the square tool")
             }
+            //console.log(list)
+            for (var i = 0; i < list.length; i++){
+                var item = list[i];
+                //console.log(item)
+            
+                $("#anomalyList").append( $(document.createElement("option"))
+                    .text(item.name)
+                    .attr("value", _currList.length)
+                );
+                
+            _currList.push(item);
+            hideFeatureSaveDialog();
+            }
+            
             //console.log(response)
         },
         error: function(jqXHR, textStatus, errorThrown){
@@ -321,11 +329,13 @@ $(function(){
             if($('#test1').is(':checked')) {
                 console.log("running")
                 $('#anomalyList').empty()
+                $('#anomalyDescription').empty()
                 fullanomalydetection();
             }
             else if ($('#test2').is(':checked')) {
                 console.log("Running detection")
                 $('#anomalyList').empty()
+                $('#anomalyDescription').empty()
                 selectedAnomalyDetection();
             }
             else {

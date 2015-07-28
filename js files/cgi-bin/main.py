@@ -31,7 +31,18 @@ def boxAnomaly(x1, x2, y1, y2, z, port , tstart, tend):
 		minSplit = 0
 	anomlist = traversal.runSelectedMap(coords, minSplit, port , tstart, tend)
 	return anomlist
+
 ################################################################################################
+
+
+def polygonAnomaly(coordlist, port, tstart, tend):
+	
+	anomalies = traversal.runPolygonSelection(coordlist, port, tstart, tend)
+	return anomalies
+
+
+################################################################################################
+
 
 def fullAnomaly(port, timestart, timeend, minlevel, maxlevel):
 	#print "got into main fullanomaly"
@@ -39,7 +50,6 @@ def fullAnomaly(port, timestart, timeend, minlevel, maxlevel):
 	#print "did traversal initialize"
 	return a
 
-################################################################################################
 # Main function
 # First initialze the queue
 # Process all entries in the queue until empty
