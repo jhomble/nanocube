@@ -245,7 +245,7 @@ $(function(){
     ;
     var saveAnomaly = $('<button>', {id: "anomalyButtonSave"})
         .addClass("btn btn-primary")
-        .css("width", "100%")
+        .css("width", "50%")
         .css("height", "15%px")
         .text("Save Anomaly")
         .click(function(){
@@ -265,10 +265,8 @@ $(function(){
                     .text(item.name)
                 );
 
-                _featureList.push(item)
-                console.log(window.location.pathname.split("/").slice(0, -1).join("/"))
+                _featureList.push(itlocationem)
                 var dataToSend = { feature: item, path: window.location.pathname.split("/").slice(0, -1).join("/") };
-                console.log(dataToSend)
                 $.ajax({
                     url: "/cgi-bin/savefeature.py",
                     type: "POST",
@@ -283,11 +281,35 @@ $(function(){
 
             }    
         })
+    var editButton = $('<button>', { id: "editButton" }) 
+        .addClass("btn btn-success")
+        .css("width", "50%")
+        .css("height", "15%px")
+        .text("Edit")
+        .click(function(){
+            var value = $("#anomalyList").val();
+            var item = _currList[value]
+            var name = prompt("Enter Title");
+            var description = prompt("Enter Description");
+            if (name != null){
+                console.log("changing")
+                item.name = name;
+                item.description = description;
+                _currList[value] = item;
+                console.log(_currList[value])
+                $('#anomalyList').index(value).text = name 
+            }
+            console.log(item)
+            console.log($('#anomalyList'))
+            console.log($('#anomalyList option[value = "value"]'))
+
+        })
+    ;
 
     newAnomaliesDiv.append(anomalyList);
     newAnomaliesDiv.append(anomalyDescription);
     newAnomaliesDiv.append(saveAnomaly);
-
+    newAnomaliesDiv.append(editButton);
     //$("body").append(newAnomaliesDiv);
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -343,7 +365,7 @@ $(function(){
             }
         })
     ;
-
+    
     var loadingmessage = $('<p id="loadingmessage"><b>...</b></p>')
         .css("position", "absolute")
         .css("bottom", "3px")
@@ -365,6 +387,7 @@ $(function(){
     AnomPopout.append('<label for="test2">Region detection</label>');
     AnomPopout.append('<br/>');
     AnomPopout.append(anombutton3);
+
     AnomPopout.append(loadingBar)
     AnomPopout.append(loadingmessage);
     //newAnomaliesDiv.append(AnomPopout);
