@@ -127,6 +127,8 @@ function validateFeatureAndSave(){
     newFeature.name = name;
     newFeature.description = description;
     var dataToSend = { feature: newFeature, path: window.location.pathname.split("/").slice(0, -1).join("/") };
+    console.log("asd")
+    console.log(dataToSend)
     $.ajax({
         url: "/cgi-bin/savefeature.py",
         type: "POST",

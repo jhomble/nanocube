@@ -266,8 +266,8 @@ $(function(){
                 );
 
                 _featureList.push(item)
-                console.log(window.location.pathname)
-                var dataToSend = { name: item.name, path: window.location.pathname};
+                console.log(window.location.pathname.split("/").slice(0, -1).join("/"))
+                var dataToSend = { feature: item, path: window.location.pathname.split("/").slice(0, -1).join("/") };
                 console.log(dataToSend)
                 $.ajax({
                     url: "/cgi-bin/savefeature.py",
