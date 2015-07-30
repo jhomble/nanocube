@@ -1,6 +1,10 @@
 import urllib, json, Queue, math
 
+<<<<<<< HEAD
 #builds the url for the query of the selected region using the square tool
+=======
+
+>>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 def urlBoxMaker(x1, x2, y1, y2, z, port, timestart, timeend):
 
 	base = "http://nanocube.govspc.att.com:"
@@ -12,6 +16,7 @@ def urlBoxMaker(x1, x2, y1, y2, z, port, timestart, timeend):
 
 
 ################################################################################################
+<<<<<<< HEAD
 
 def urlPolygonMaker(coordList, port, timestart, timeend):
 
@@ -28,6 +33,8 @@ def urlPolygonMaker(coordList, port, timestart, timeend):
 	return base
 
 ################################################################################################
+=======
+>>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 # Given x,y,z coordinates of a box, formats the url to request the JSON
 def urlMaker(x, y, z, port, timestart, timeend):
 

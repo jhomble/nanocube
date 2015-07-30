@@ -65,8 +65,13 @@ def checkSelectedCorners(x1, x2, y1, y2, z):
 	url = urlmakers.urlBoxMaker(x1, x2, y1, y2, z, port, timestart, timeend)
 	#print url
 	try:
+<<<<<<< HEAD
 		data = urlmakers.processURL(url)
 		anomaly = anamolyDetection.anomalyDetector(data)
+=======
+		data = urlmakers.processURL(url);
+		anomaly = anamolyDetection.anomalyDetector(data);
+>>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 	except ValueError:
 		pass
 		#print "error in processURL"
@@ -170,8 +175,13 @@ def checkCorners(x, y, z):
 	url = urlmakers.urlMaker(x, y, z, port, timestart, timeend)
 	#print url
 	try:
+<<<<<<< HEAD
 		data = urlmakers.processURL(url)
 		anomaly = anamolyDetection.anomalyDetector(data)
+=======
+		data = urlmakers.processURL(url);
+		anomaly = anamolyDetection.anomalyDetector(data);
+>>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 	except ValueError:
 		pass
 		#print "error in processURL"
@@ -213,8 +223,12 @@ def runEntireMap(minLevel):
 	initQ.put((quad,listQ))
 	while not initQ.empty():
 		bufferQ = initQ.get()
+<<<<<<< HEAD
 		processSquare(bufferQ[0], bufferQ[1], minLevel, init)
 
+=======
+		processSquare(bufferQ[0], bufferQ[1], minLevel, init);
+>>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 
 
 ################################################################################################
@@ -238,6 +252,7 @@ def runSelectedMap(coords, minSplit, portn , tstart, tend):
 		bufferQ = q.get()
 		processSelected(bufferQ[0], bufferQ[1], minSplit)
 		#print anomlist1
+<<<<<<< HEAD
 	return anomlist1
 
 
@@ -255,3 +270,6 @@ def runPolygonSelection(coordslist, port, tstart, tend):
 	#print anomaly
 
 	return anomaly
+=======
+	return anomlist1
+>>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
