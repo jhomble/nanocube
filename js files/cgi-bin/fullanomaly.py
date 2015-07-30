@@ -1,4 +1,4 @@
-#!python2
+#!/usr/bin/python
 import sys, json, platform, os, urllib, time
 from traversal import main
 import cgitb
@@ -60,26 +60,26 @@ try:
 		dict3 = dict()
 		dict4 = dict()
 		#We will zoom in one level to get the four corners of the box
-		dict1['level'] = level+1
-		dict1['x'] = 2*currx
-		dict1['y'] = 2*curry
+		dict1['level'] = level+5
+		dict1['x'] = 32*currx
+		dict1['y'] = 32*curry
 		anomdictlist.append(dict1)
-		dict2['level'] = level+1
-		dict2['x'] = 2*currx
-		dict2['y'] = (2*curry)+2
+		dict2['level'] = level+5
+		dict2['x'] = 32*currx
+		dict2['y'] = (32*(curry+1))
 		anomdictlist.append(dict2)
-		dict3['level'] = level+1
-		dict3['x'] = (2*currx)+2
-		dict3['y'] = (2*curry)+2
+		dict3['level'] = level+5
+		dict3['x'] = (32*(currx + 1))
+		dict3['y'] = (32*(curry + 1))
 		anomdictlist.append(dict3)
-		dict4['level'] = level+1
-		dict4['x'] = (2*currx)+2
-		dict4['y'] = 2*curry
+		dict4['level'] = level+5
+		dict4['x'] = (32*(currx + 1))
+		dict4['y'] = 32*curry
 		anomdictlist.append(dict4)
 
 		currdict['tileSelection'] = anomdictlist
 		currdict['name'] = "anomaly" + str(i+1)
-		# use this name to get the run number
+		# use this name to get the run number-
         # anomdict['name'] = jsonIn['feature']['name'] + "anomaly" + str(i+1)
 
 		latlon = main.convertCoords(currx, curry, level)    
