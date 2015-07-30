@@ -4,25 +4,8 @@
 var _SHAPE_OPTIONS = { weight: 2, opacity:.9, color:"#DC6BA3" };
 var _currSelectedFeature = null;
 var _featureDeleteLink = null;
-<<<<<<< HEAD
 var _index = 1;
 
-=======
-var _featureList = [];
-var _index = 1;
-
-// change to the name of your nanocube server port here
-var port = "29502";
-// time start and end for the timeline of data
-var timestart = "1";
-var timeend = "9";
-
-// defaults for min and max level | 2 and 12
-var minlevel = "2";
-var maxlevel = "12";
-
-
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 function forceConstraints(constraints){
     map.setView(constraints.geoCenter, constraints.zoomLevel);
     
@@ -88,24 +71,6 @@ function drawPolygon(tiles){
     L.polygon(coords, _SHAPE_OPTIONS).addTo(map.drawnItems);
 }
 
-<<<<<<< HEAD
-=======
-function featureSelected(){
-    var index = $("#selectFeature").val();
-    if (index === _currSelectedFeature){
-        $("#selectFeature").val([]);
-        $("#featureDescription").text("");
-        _currSelectedFeature = null;
-        disableFeatureDelete();
-    } else if (index !== null){
-        forceConstraints(_featureList[index]);
-        $("#featureDescription").text(_featureList[index].description);
-        _currSelectedFeature = index;
-        enableFeatureDelete();
-    }
-}
-
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 function createFeatureFromCurrent(){
     var tiles = constrainer.getTiles();
     tiles = (tiles === undefined) ? null : tiles;
@@ -126,7 +91,6 @@ function createFeatureFromCurrent(){
     };
 }
 
-<<<<<<< HEAD
 function featureSelected(){
     var index = $("#selectFeature").val();
     if (index === _currSelectedFeature){
@@ -137,113 +101,11 @@ function featureSelected(){
     } else if (index !== null){
         forceConstraints(_featureList[index]);
         $("#featureDescription").text(_featureList[index].description);
-=======
-function anomalySelected(){
-    var index = $("#anomalyList").val();
-    if (index === _currSelectedFeature){
-        $("#anomalyList").val([]);
-        $("#anomalyDescription").text("");
-        _currSelectedFeature = null;
-        disableFeatureDelete();
-    } else if (index !== null){
-        forceConstraints(_currList[index]);
-        $("#anomalyDescription").text(_currList[index].description);
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
         _currSelectedFeature = index;
         enableFeatureDelete();
     }
 }
 
-<<<<<<< HEAD
-=======
-function fullanomalydetection(){
-    $('#runbutton').prop("disabled",true);
-    $("#loadingmessage").show()
-    var dataToSend = { portnum: port , timestart: timestart, timeend: timeend, minlevel : minlevel , maxlevel : maxlevel }
-    $.ajax({
-        url: "/cgi-bin/fullanomaly.py",
-        type: "POST",
-        data: JSON.stringify(dataToSend),
-        success: function(response){
-            $('#runbutton').prop("disabled",false);
-            $("#loadingmessage").hide()
-            console.log(response)
-            var list = []
-            list = JSON.parse(response)
-            if (list.length == 0) {
-                alert("No anomalies found");
-            }
-            else {
-                for (var i = 0; i < list.length; i++){
-                    var item = list[i];
-                    //console.log(item)
-                
-                    $("#anomalyList").append( $(document.createElement("option"))
-                        .text(item.name)
-                        .attr("value", _currList.length)
-                    );
-
-                _currList.push(item);
-                hideFeatureSaveDialog();
-                }
-            }
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            //alert("Feature could not be added on server!");
-            console.log(errorThrown)
-            console.log(textStatus)
-        }
-    });
-
-}
-
-function anomalydetection(){
-    var newFeature = createFeatureFromCurrent();
-    newFeature.name = "Run # " + _index.toString() + " " ;
-    _index = _index + 1;
-
-    //var tiles  = constrainer.getTiles();
-    //var dataToSend = { tileSelection: tiles };
-    //console.log(newFeature);
-    var dataToSend = { feature: newFeature , portnum: port , timestart: timestart, timeend: timeend}
-    $.ajax({
-        url: "/cgi-bin/regionanomaly.py",
-        type: "POST",
-        data: JSON.stringify(dataToSend),
-        success: function(response){
-            console.log(response)
-            var list = []
-            list = JSON.parse(response)
-            //console.log(list)
-            if (response.localeCompare("not a square\n") == 0){
-                alert("please don't use the polygon tool")
-            }
-            else {
-                for (var i = 0; i < list.length; i++){
-                    var item = list[i];
-                    //console.log(item)
-                
-                    $("#anomalyList").append( $(document.createElement("option"))
-                        .text(item.name)
-                        .attr("value", _currList.length)
-                    );
-                    
-                _currList.push(item);
-                hideFeatureSaveDialog();
-                }
-            }
-            //console.log(response)
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            //alert("Feature could not be added on server!");
-            console.log(errorThrown)
-            console.log(textStatus)
-        }
-    });
-
-}
-
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 function validateFeatureAndSave(){
     var name = $("#featureSaveName").val();
     var description = $("#featureSaveDescription").val();
@@ -346,11 +208,7 @@ function deleteCurrentFeature(){
 }
 
 function addFeatureButtons(){
-<<<<<<< HEAD
     var FeatureButton = L.Control.extend( {
-=======
-    var FeatureButton = L.Control.extend({
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
         options: {
             position: 'topleft',
         },
@@ -389,23 +247,16 @@ function addFeatureButtons(){
             L.DomEvent.preventDefault(e);
 
             if (this.linkShow.title === 'Show the list of saved events'){
-<<<<<<< HEAD
                 //this.linkShow.style.backgroundPosition = "2px -20px";
-=======
-                this.linkShow.style.backgroundPosition = "2px -20px";
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
                 this.linkShow.title = 'Hide the list of saved events';
                 $("#featuresDiv").show();
                 if ($("#selectFeature").val() !== null){
                     enableFeatureDelete();
                 }
-<<<<<<< HEAD
                 if ($('#mainAnomaliesDiv').is(":visible")){
                     $('#mainAnomaliesDiv').hide()
                 }
 
-=======
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
             } else {
                 this.linkShow.style.backgroundPosition = "2px 2px";
                 this.linkShow.title = 'Show the list of saved events';
@@ -435,7 +286,6 @@ function addFeatureButtons(){
 $(function(){
     //add the HTML for the selector
     var mainDiv = $('<div>', { id: "featuresDiv" })
-<<<<<<< HEAD
         .addClass("container")
         .css("left", "50px")
         .css("top", "30px")
@@ -446,15 +296,6 @@ $(function(){
     ;
     var selectList = $('<select>', { id: "selectFeature" })
         .addClass("form-control")
-=======
-        .css("left", "50px")
-        .css("top", "10px")
-        .css("position", "absolute")
-        .css("width", "220px")
-        .css("display", "none")
-    ;
-    var selectList = $('<select>', { id: "selectFeature" })
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
         .attr("size", 15)
         .css("width", "100%")
         .css("height", "175px")
@@ -465,7 +306,6 @@ $(function(){
         .css("height", "150px")
         .css("weight", "100%")
     ;
-<<<<<<< HEAD
     var saveFeatureHeader = $('<p id="saveFeatureHeader" class="text-primary"><b>Saved Points of Interest</b></p>')
         .css("background-color", "white")
         .css("width", "100%")
@@ -536,11 +376,6 @@ $(function(){
     mainDiv.append(removeFeatureButton)    
     mainDiv.append(editFeatureButton)
     $("body").append(mainDiv)
-=======
-    mainDiv.append(selectList);
-    mainDiv.append(description);
-    $("body").append(mainDiv);
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 
     //load the feature file
     $.ajax({

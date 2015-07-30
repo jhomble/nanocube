@@ -31,7 +31,6 @@ def boxAnomaly(x1, x2, y1, y2, z, port , tstart, tend):
 		minSplit = 0
 	anomlist = traversal.runSelectedMap(coords, minSplit, port , tstart, tend)
 	return anomlist
-<<<<<<< HEAD
 
 ################################################################################################
 
@@ -45,10 +44,6 @@ def polygonAnomaly(coordlist, port, tstart, tend):
 ################################################################################################
 
 
-=======
-################################################################################################
-
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 def fullAnomaly(port, timestart, timeend, minlevel, maxlevel):
 	#print "got into main fullanomaly"
 	a = traversal.initializeEntireMap(int(minlevel), int(maxlevel), port, timestart, timeend)

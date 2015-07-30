@@ -9,11 +9,7 @@ var histograms = [];
 var constrainer;
 var drawer;
 var eventTypes = ["no ratings",".5", "1", "1.5", "2", "2.5", "3","3.5", "4", "4.5", "5"];
-<<<<<<< HEAD
 var port = "29501";
-=======
-var _currList = [];
->>>>>>> 8ef420e5da43ed74e83377be5059d8fb248340ae
 
 // change to the name of your nanocube server port here and in features.js
 
