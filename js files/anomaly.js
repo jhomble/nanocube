@@ -59,6 +59,9 @@ function fullanomalydetection(){
         },
         error: function(jqXHR, textStatus, errorThrown){
             //alert("Feature could not be added on server!");
+            $('#runbutton').prop("disabled",false);
+            $('#loadingBar').hide()
+            $("#loadingmessage").hide()
             console.log(errorThrown)
             console.log(textStatus)
         }
@@ -265,7 +268,7 @@ $(function(){
                     .text(item.name)
                 );
 
-                _featureList.push(itlocationem)
+                _featureList.push(item)
                 var dataToSend = { feature: item, path: window.location.pathname.split("/").slice(0, -1).join("/") };
                 $.ajax({
                     url: "/cgi-bin/savefeature.py",
@@ -281,28 +284,26 @@ $(function(){
 
             }    
         })
+
     var editButton = $('<button>', { id: "editButton" }) 
         .addClass("btn btn-success")
         .css("width", "50%")
         .css("height", "15%px")
-        .text("Edit")
+        .text("Edit Anomaly")
         .click(function(){
             var value = $("#anomalyList").val();
-            var item = _currList[value]
-            var name = prompt("Enter Title");
-            var description = prompt("Enter Description");
-            if (name != null){
-                console.log("changing")
-                item.name = name;
-                item.description = description;
-                _currList[value] = item;
-                console.log(_currList[value])
-                $('#anomalyList').index(value).text = name 
+                if(value != null){
+                var item = _currList[value]
+                var name = prompt("Enter Title");
+                var description = prompt("Enter Description");
+                if (name != null){
+                    item.name = name;
+                    item.description = description;
+                    _currList[value] = item;
+                    $('#anomalyList').prop(value).text = item.name
+                    $("#anomalyDescription").text(_currList[value].description);
+                }
             }
-            console.log(item)
-            console.log($('#anomalyList'))
-            console.log($('#anomalyList option[value = "value"]'))
-
         })
     ;
 

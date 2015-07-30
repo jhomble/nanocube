@@ -127,8 +127,6 @@ function validateFeatureAndSave(){
     newFeature.name = name;
     newFeature.description = description;
     var dataToSend = { feature: newFeature, path: window.location.pathname.split("/").slice(0, -1).join("/") };
-    console.log("asd")
-    console.log(dataToSend)
     $.ajax({
         url: "/cgi-bin/savefeature.py",
         type: "POST",
@@ -319,20 +317,64 @@ $(function(){
         .css("background-color", "white")
         .css("border", "2px solid orange")
     ;
-    /*var removeFeatureButton = $('<button>', { id: "removeFeatureButton" })
-        .addClass("btn btn-danger")
-        .css("width", "100%")
+
+    var editFeatureButton = $('<button>', { id: "editFeature" })
+        .addClass("btn btn-success")
+        .css("width", "50%")
         .css("height", "20%")
-        .text("Delete Point of Interest")
+        .text("Edit Feature")
+        .click(function(){
+            var value = $("#selectFeature").val();
+            if(value != null){
+                var item = _featureList[value]
+                var name = prompt("Enter Title");
+                var description = prompt("Enter Description");
+                if (name != null){
+                    var dataToSend = { name: item.name, path: window.location.pathname.split("/").slice(0, -1).join("/"), newName: name, newDescription: description };
+                    console.log(item)
+                    console.log(dataToSend)
+                    $.ajax({
+                        url: "/cgi-bin/editFeature.py",
+                        type: "POST",
+                        data: JSON.stringify(dataToSend),
+                        success: function(response){
+                            response = $.trim(response);
+                            if (response === "Success"){
+                                alert("Successfully Changed")
+                            } else {
+                                alert("Feature could not be removed from server!");
+                                console.log(response);
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown){
+                            alert("Feature could not be removed from server!");
+                        }
+                    });
+                    item.name = name
+                    item.description = description
+                    _featureList[value] = item
+                    $('#selectFeature').prop(value).text = item.name
+                    $("#featureDescription").text(_featureList[value].description);
+                }
+            }
+        })
+    ;
+
+    var removeFeatureButton = $('<button>', { id: "removeFeatureButton" })
+        .addClass("btn btn-danger")
+        .css("width", "50%")
+        .css("height", "20%")
+        .text("Delete Feature")
         .click(function(){
             deleteCurrentFeature()
         })
-    ;*/
+    ;
     headerDiv.append(saveFeatureHeader)
     mainDiv.append(headerDiv)
     mainDiv.append(selectList)
     mainDiv.append(description)
-    //mainDiv.append(removeFeatureButton)
+    mainDiv.append(removeFeatureButton)    
+    mainDiv.append(editFeatureButton)
     $("body").append(mainDiv)
 
     //load the feature file
