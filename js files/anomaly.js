@@ -1,4 +1,3 @@
-// change to the name of your nanocube server port here
 // time start and end for the timeline of data
 var timestart = "1";
 var timeend = "9";
