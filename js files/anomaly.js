@@ -1,3 +1,4 @@
+// change to the name of your nanocube server port here
 // time start and end for the timeline of data
 var timestart = "1";
 var timeend = "9";
@@ -168,46 +169,6 @@ function addAnomalyButton(){
     map.addControl(new anomalyButton());
 }
 
-/*function addAnomalyContainer(){
-    var anomalyContainer = L.Control.extend({
-        options: {
-            position: 'topleft',
-        },
-
-        onAdd: function () {
-            var container = L.DomUtil.create('div', 'leaflet-bar');
-
-            this.anom = L.DomUtil.create('a', 'leaflet-bar-part', container);
-            this.anom.href = '#';
-            L.DomEvent.on(this.anom, 'click', this._click, this);
-            this.anom.title = 'Show the list of Anomalies';
-            this.anom.style.backgroundImage = "url('css/images/fa-folder-open-o-times.png')"; //css is being set but not actually applied for some reason
-            this.anom.style.backgroundPosition = "4px 4px"
-
-            return container;
-        },
-
-        _click: function (e){
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-
-             if (this.anom.title === 'Show the list of Anomalies'){
-                this.anom.style.backgroundPosition = "2px -20px";
-                this.anom.title = 'Hide the list of Anomalies';
-                $("#newAnomaliesDiv").show();
-
-            } else {
-                this.anom.style.backgroundPosition = "2px 2px";
-                this.anom.title = 'Show the list of Anomalies';
-                $("#newAnomaliesDiv").hide();
-            }         
-
-
-        }
-    });
-
-    map.addControl(new anomalyContainer());
-}*/
 // You may have to change pixels... have fun
 $(function(){
     var mainAnomaliesDiv = $('<div>', {id: "mainAnomaliesDiv"})
@@ -219,19 +180,17 @@ $(function(){
         .css("display", "none")
     ;
     var newAnomaliesDiv = $('<div>', {id: "anomaliesDiv"})
-        .addClass("pull-left")
         .addClass("container")
-        .css("left", "1px")
-        .css("top", "157x")
-        .css("position", "absolute")
-        .css("width", "100%")
+        .css("width", "300px")
+        .css("height", "70%")
         .show()
     ;
 
     var anomalyList = $('<select>', { id: "anomalyList" })
         .addClass("form-control")
         .attr("size", 15)
-        .css("width", "100%")
+        .css("margin-left", "0px")
+        .css("width", "270px")
         .css("height", "175px")
         .click(function(){
             anomalySelected()
@@ -240,15 +199,54 @@ $(function(){
     ;
 
     var anomalyDescription = $('<div>', { id: "anomalyDescription" })
+        .addClass("container")
         .css("overflow-y", "scroll")
         .css("background-color", "white")
+        .css("margin-left", "0px")
         .css("height", "150px")
-        .css("weight", "100%")
+        .css("width", "270px")
     ;
+
+    var settingsDiv = $('<div>', { id: "settingsDiv" })
+        .addClass("container")
+        .css("background-color", "white")
+        .css("height", "325px")
+        .css("width", "270px")
+        .css("position", "absolute")
+        .css("border", "2px solid orange")
+        .css("top", "250px%")
+        .hide()
+    ;
+
+    var fullDetectionSettingsDiv = $('<div>', { id: "fullDetectionSettingsDiv" })
+        .addClass("container")
+        .css("width", "100%")
+        .css("height", "100%")
+        .text("full settings")
+        .hide()
+    ;
+
+    var maxLevelTxt = $('<text>', { id: "maxLevelTxt" })
+        .addClass("form-control")
+        .css("position", "absolute")
+        .css("width", "50%")
+        .css("left", "5px")
+        .css("top", "5px")
+        .show()
+    ;
+
+    var regionDetectionSettingsDiv = $('<div>', { id: "regionDetectionSettingsDiv" })
+        .addClass("container")
+        .css("width", "100%")
+        .css("height", "100%")
+        .text("region settings")
+        .hide()
+    ;  
+
     var saveAnomaly = $('<button>', {id: "anomalyButtonSave"})
         .addClass("btn btn-primary")
         .css("width", "50%")
-        .css("height", "15%px")
+        .css("height", "15%")
         .text("Save Anomaly")
         .click(function(){
             var value = $("#anomalyList").val();
@@ -285,9 +283,10 @@ $(function(){
         })
 
     var editButton = $('<button>', { id: "editButton" }) 
-        .addClass("btn btn-success")
+        .addClass("btn btn-success")        
+        .css("border", "2px solid orange")
         .css("width", "50%")
-        .css("height", "15%px")
+        .css("height", "15%")
         .text("Edit Anomaly")
         .click(function(){
             var value = $("#anomalyList").val();
@@ -300,18 +299,23 @@ $(function(){
                     item.description = description;
                     _currList[value] = item;
                     $('#anomalyList').prop(value).text = item.name
-                    $("#anomalyDescription").text(_currList[value].description);
+                    $('#anomalyDescription').text(_currList[value].description);
                 }
             }
         })
     ;
+    
+    
 
     newAnomaliesDiv.append(anomalyList);
     newAnomaliesDiv.append(anomalyDescription);
+    newAnomaliesDiv.append(settingsDiv);
     newAnomaliesDiv.append(saveAnomaly);
     newAnomaliesDiv.append(editButton);
-    //$("body").append(newAnomaliesDiv);
 
+    settingsDiv.append(fullDetectionSettingsDiv);
+    settingsDiv.append(regionDetectionSettingsDiv);
+    fullDetectionSettingsDiv.append(maxLevelTxt);
     ///////////////////////////////////////////////////////////////////////////////////////
 
     var AnomPopout = $('<div>', {id: "AnomPopout"})
@@ -320,8 +324,9 @@ $(function(){
         .css("position", "relative")
         .css("background-color", "#eee")
         .css("width", "270px")
-        .css("height", "150px")
+        .css("height", "180px")
         .css("display", "none")
+        .css("left", "15px")
         .show()
 
     ;
@@ -333,16 +338,26 @@ $(function(){
         .css("width", "100%")
         .css("height", "285px")
     ;
-    var anombutton1 = $('<input type="radio" name="rad" id="test1" value="1">');
-    var anombutton2 = $('<input type="radio" name="rad" id="test2" value="2">');
+    var anombutton1 = $('<input type="radio" name="rad" id="test1" value="1">')
+        .click(function(){
+            $('#fullDetectionSettingsDiv').show()
+            $('#regionDetectionSettingsDiv').hide()
+        })
+    ;
+    var anombutton2 = $('<input type="radio" name="rad" id="test2" value="2">')
+        .click(function(){
+            $('#fullDetectionSettingsDiv').hide()
+            $('#regionDetectionSettingsDiv').show()
+        })
+    ;
     var anombutton3 = $('<button>', { id: "runbutton" })
         .addClass("btn btn-primary")
         .css("width", "100px")
-        .css("height", "35px")
+        .css("height", "36px")
         .text("RUN")
         .css("position", "absolute")
-        .css("bottom", "3px")
-        .css("margin-left", "10px")
+        .css("bottom", "40px")
+        .css("margin-left", "5px")
         .click(function(){
             //$("#test1").prop("checked", true).checkboxradio("refresh");
             //var selected1 = $("#test1 input[type='radio'][value='1']:checked").checkboxradio("refresh");
@@ -365,16 +380,41 @@ $(function(){
             }
         })
     ;
+
+    var settingsButton = $('<button>', { id: "settingsButton" })
+        .addClass("btn btn-info")
+        .css("position", "absolute")
+        .css("width", "100px")
+        .css("height", "35px")
+        .css("margin-left", "5px")
+        .css("bottom", "5px")
+        //.css("value", "Edit Settings for Anomaly Detection")
+        .text('Settings')
+        .click(function(){
+            if($('#settingsButton').text() === 'Settings'){
+                $('#settingsButton').text('Anomaly List')
+                $('#settingsDiv').show()
+                $('#anomalyList').hide()
+                $('#anomalyDescription').hide()               
+            }
+            else{
+                $('#settingsButton').text('Settings')
+                $('#settingsDiv').hide()
+                $('#anomalyList').show()
+                $('#anomalyDescription').show()
+            }
+        })
+    ;
     
     var loadingmessage = $('<p id="loadingmessage"><b>...</b></p>')
         .css("position", "absolute")
-        .css("bottom", "3px")
+        .css("bottom", "36px")
         .css("margin-left", "185px")
         .hide()
     ;
     var loadingBar = $('<img id="loadingBar" src="/css/images/loading_bar.gif" />')
         .css("position", "absolute")
-        .css("bottom", "5px")
+        .css("bottom", "38px")
         .css("margin-left", "160px")
         .hide()
 
@@ -387,18 +427,16 @@ $(function(){
     AnomPopout.append('<label for="test2">Region detection</label>');
     AnomPopout.append('<br/>');
     AnomPopout.append(anombutton3);
+    AnomPopout.append(settingsButton);
 
     AnomPopout.append(loadingBar)
     AnomPopout.append(loadingmessage);
-    //newAnomaliesDiv.append(AnomPopout);
 
-    //$("body").append(AnomPopout);
     mainAnomaliesDiv.append(AnomPopout)
     mainAnomaliesDiv.append(newAnomaliesDiv)
     $("body").append(mainAnomaliesDiv);
 
     addAnomalyButton();
-    //addAnomalyContainer();
 
 
 });
