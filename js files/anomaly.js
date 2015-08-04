@@ -5,6 +5,8 @@ var timeend = "9";
 // defaults for min and max level | 2 and 12
 var minlevel = "2";
 var maxlevel = "12";
+var minSplits = "3"
+var threshold = "2";
 var _currList = [];
 var _featureList = [];
 
@@ -27,6 +29,8 @@ function fullanomalydetection(){
     $('#runbutton').prop("disabled",true);
     $('#loadingBar').show()
     $("#loadingmessage").show()
+    console.log("actual")
+    console.log(minlevel)
     var dataToSend = { portnum: port , timestart: timestart, timeend: timeend, minlevel : minlevel , maxlevel : maxlevel }
     $.ajax({
         url: "/cgi-bin/fullanomaly.py",
@@ -222,28 +226,328 @@ $(function(){
         .addClass("container")
         .css("width", "100%")
         .css("height", "100%")
-        .text("full settings")
         .hide()
     ;
 
-    var maxLevelTxt = $('<text>', { id: "maxLevelTxt" })
-        .addClass("form-control")
+    var maxLevelSel = $('<select>', {id: "maxLevelSel"})
         .css("position", "absolute")
-        .css("width", "50%")
-        .css("left", "5px")
-        .css("top", "5px")
+        .css("width", "40%")
+        .css("height", "10%")
+        .css("left", "35%")
+        .css("top", "3%")
         .show()
+    ;
+
+    var maxArr = [
+        {val : 5, text: '900 miles'},
+        {val : 6, text: '450 miles'},
+        {val : 7, text: '225 miles'},
+        {val : 8, text: '110 miles'},
+        {val : 9, text: '55 miles'},
+        {val : 10, text: '25 miles'},
+        {val : 11, text: '12 miles'},
+        {val : 12, text: '6 miles'},
+        {val : 13, text: '3 miles'},
+        {val : 14, text: '1.5 miles'},
+        ];
+
+    $(maxArr).each(function() {
+        maxLevelSel.append($("<option>").attr('value',this.val).text(this.text));
+        $(maxLevelSel).val(12)
+    });
+
+    var maxLabel = $('<label>', { id: "maxLabel" })
+        .text("Max Lvl")
+        .css("position", "absolute")
+        .css("top", "3%")
+        .css("left", "5%")
+    ;
+
+    var maxHelp = $('<button>', { id: "maxHelp" })
+        .addClass("btn btn-default")
+        .text("Info")
+        .css("position", "absolute")
+        .css("top", "3%")
+        .css("left", "80%")
+        .hover(function(){
+            $('#maxHelpDivContent').toggle()
+            $('#minHelp').toggle()
+            $('#thresholdHelp').toggle()
+        })
+    ;
+
+    var maxHelpDivContent = $('<div>', { id: "maxHelpDivContent" })
+        .css("width", "300px")
+        .css("left", "10px")
+        .append('<p></p>')
+        .append('<p>Set the Maximum depth search</p>')
+        .append('<p></p>')
+        .append('<p>This value will determine when the Anomaly</p>')
+        .append('<p>Detection will stop!</p>')
+        .hide()
+    ;
+
+    var minLevelSel = $('<select>', {id: "minLevelSel"})
+        .css("position", "absolute")
+        .css("width", "40%")
+        .css("height", "10%")
+        .css("left", "35%")
+        .css("top", "20%")
+        .show()
+    ;
+
+    var minArr = [
+        {val : 0, text: '25,000 miles'},
+        {val : 1, text: '12,500 miles'},
+        {val : 2, text: '7,200 miles'},
+        {val : 3, text: '3,600 miles'},
+        {val : 4, text: '1,800 miles'},
+        ];
+
+    $(minArr).each(function() {
+        minLevelSel.append($("<option>").attr('value',this.val).text(this.text));
+        $(minLevelSel).val(2)
+    });
+
+    var minLabel = $('<label>', { id: "minLabel" })
+        .text("Min Lvl")
+        .css("position", "absolute")
+        .css("top", "21%")
+        .css("left", "5%")
+    ;
+
+    var minHelp = $('<button>', { id: "minHelp" })
+        .addClass("btn btn-default")
+        .text("Info")
+        .css("position", "absolute")
+        .css("top", "20%")
+        .css("left", "80%")
+        .hover(function(){
+            $('#minHelpDivContent').toggle()            
+            $('#maxHelp').toggle()
+            $('#thresholdHelp').toggle()
+        })
+    ;
+
+    var minHelpDivContent = $('<div>', { id: "minHelpDivContent" })
+        .css("width", "300px")
+        .css("left", "10px")
+        .append('<p></p>')
+        .append('<p>Set the Minimum depth search</p>')
+        .append('<p></p>')
+        .append('<p>This value will determine when the Anomaly</p>')        
+        .append('<p>Detection will start ignoring empty sections!</p>')
+        .hide()
+    ;
+
+    var thresholdSel = $('<select>', {id: "thresholdSel"})
+        .css("position", "absolute")
+        .css("width", "40%")
+        .css("height", "10%")
+        .css("left", "35%")
+        .css("top", "37%")
+        .show()
+    ;
+
+    var thresholdArr = [
+        {val : 1, text: '1'},
+        {val : 1.5, text: '1.5'},
+        {val : 2, text: '2'},
+        {val : 2.5, text: '2.5'},
+        {val : 3, text: '3'},
+        {val : 3.5, text: '3.5'},
+        {val : 4, text: '4'},
+        {val : 4.5, text: '4.5'},
+        {val : 5, text: '5'},
+        ];
+
+    $(thresholdArr).each(function() {
+        thresholdSel.append($("<option>").attr('value',this.val).text(this.text));
+        $(thresholdSel).val(2)
+    });
+
+    var thresholdLabel = $('<label>', { id: "thresholdLabel" })
+        .text("Std Dev")
+        .css("position", "absolute")
+        .css("top", "38%")
+        .css("left", "5%")
+    ;
+
+    var thresholdHelp = $('<button>', { id: "thresholdHelp" })
+        .addClass("btn btn-default")
+        .text("Info")
+        .css("position", "absolute")
+        .css("top", "37%")
+        .css("left", "80%")
+        .hover(function(){
+            $('#thresholdHelpDivContent').toggle()            
+            $('#maxHelp').toggle()
+            $('#minHelp').toggle()
+        
+        })
+    ;
+
+    var thresholdHelpDivContent = $('<div>', { id: "thresholdHelpDivContent" })
+        .css("width", "300px")
+        .css("left", "10px")
+        .append('<p></p>')
+        .append('<p>Set the Std Deviation Threshold</p>')
+        .append('<p></p>')
+        .append('<p>This value will determine how many Std</p>')        
+        .append('<p>Deviations from the mean will find an anomaly</p>')
+        .hide()
+    ;
+
+    var validateFullButton = $('<button>', { id: "validateFullButton" })
+        .addClass("btn btn-info")
+        .css("width", "40%")
+        .css("position", "absolute")
+        .text("Save Settings")
+        .css("bottom", "2%")
+        .css("right", "2%")
+        .click(function(){
+            minlevel = $('#minLevelSel').val()
+            maxlevel = $('#maxLevelSel').val()
+            threshold = $('#thresholdSel').val()
+            console.log(minlevel)
+            console.log(maxlevel)
+            console.log(threshold)
+        })
     ;
 
     var regionDetectionSettingsDiv = $('<div>', { id: "regionDetectionSettingsDiv" })
         .addClass("container")
         .css("width", "100%")
         .css("height", "100%")
-        .text("region settings")
         .hide()
-    ;  
+    ; 
 
-    var saveAnomaly = $('<button>', {id: "anomalyButtonSave"})
+    var minSplitsSel = $('<select>', {id: "minSplitsSel"})
+        .css("position", "absolute")
+        .css("width", "35%")
+        .css("height", "10%")
+        .css("left", "40%")
+        .css("top", "3%")
+        .show()
+    ;
+
+    var SplitsArr = [
+        {val : 0, text: '0'},
+        {val : 1, text: '1'},
+        {val : 2, text: '2'},
+        {val : 3, text: '3'},
+        {val : 4, text: '4'},
+        {val : 5, text: '5'},
+        ];
+
+    $(SplitsArr).each(function() {
+        minSplitsSel.append($("<option>").attr('value',this.val).text(this.text));
+        $(minSplitsSel).val(3)
+    });
+
+    var splitsLabel = $('<label>', { id: "splitsLabel" })
+        .text("Min Splits")
+        .css("position", "absolute")
+        .css("top", "4%")
+        .css("left", "5%")
+    ;
+
+    var splitsHelp = $('<button>', { id: "splitsHelp" })
+        .addClass("btn btn-default")
+        .text("Info")
+        .css("position", "absolute")
+        .css("top", "3%")
+        .css("left", "80%")
+        .hover(function(){
+            $('#splitsHelpDivContent').toggle()
+            $('#thresholdRegionHelp').toggle()
+        })
+    ;
+
+    var splitsHelpDivContent = $('<div>', { id: "splitsHelpDivContent" })
+        .css("width", "300px")
+        .css("left", "10px")
+        .append('<p></p>')
+        .append('<p>Set the Minimum Splits</p>')
+        .append('<p></p>')
+        .append('<p>This value will determine how in depth the</p>')        
+        .append('<p>Detection will be. Higher number = more exact!</p>')
+        .hide()
+    ;
+
+    var thresholdRegionSel = $('<select>', {id: "thresholdRegionSel"})
+        .css("position", "absolute")
+        .css("width", "35%")
+        .css("height", "10%")
+        .css("left", "40%")
+        .css("top", "37%")
+        .show()
+    ;
+
+    var thresholdRegionArr = [
+        {val : 1, text: '1'},
+        {val : 1.5, text: '1.5'},
+        {val : 2, text: '2'},
+        {val : 2.5, text: '2.5'},
+        {val : 3, text: '3'},
+        {val : 3.5, text: '3.5'},
+        {val : 4, text: '4'},
+        {val : 4.5, text: '4.5'},
+        {val : 5, text: '5'},
+        ];
+
+    $(thresholdRegionArr).each(function() {
+        thresholdRegionSel.append($("<option>").attr('value',this.val).text(this.text));
+        $(thresholdRegionSel).val(2)
+    });
+
+    var thresholdRegionLabel = $('<label>', { id: "thresholdRegionLabel" })
+        .text("Std Dev")
+        .css("position", "absolute")
+        .css("top", "38%")
+        .css("left", "5%")
+    ;
+
+    var thresholdRegionHelp = $('<button>', { id: "thresholdRegionHelp" })
+        .addClass("btn btn-default")
+        .text("Info")
+        .css("position", "absolute")
+        .css("top", "37%")
+        .css("left", "80%")
+        .hover(function(){
+            $('#thresholdRegionHelpDivContent').toggle()
+            $('#splitsHelp').toggle()
+        
+        })
+    ;
+
+    var thresholdRegionHelpDivContent = $('<div>', { id: "thresholdRegionHelpDivContent" })
+        .css("width", "300px")
+        .css("left", "10px")
+        .append('<p></p>')
+        .append('<p>Set the Std Deviation Threshold</p>')
+        .append('<p></p>')
+        .append('<p>This value will determine how many Std</p>')        
+        .append('<p>Deviations from the mean will find an anomaly</p>')
+        .hide()
+    ;
+
+    var validateRegionButton = $('<button>', { id: "validateRegionButton" })
+        .addClass("btn btn-info")
+        .css("width", "40%")
+        .css("position", "absolute")
+        .text("Save Settings")
+        .css("bottom", "2%")
+        .css("right", "2%")
+        .click(function(){
+            minSplits = $('#minSplitsSel').val()
+            threshold = $('#thresholdRegionSel').val()
+            console.log(minSplits)
+            console.log(threshold)
+        })
+    ;
+
+    var saveAnomaly = $('<button>', { id: "anomalyButtonSave" })
         .addClass("btn btn-primary")
         .css("width", "50%")
         .css("height", "15%")
@@ -251,14 +555,6 @@ $(function(){
         .click(function(){
             var value = $("#anomalyList").val();
             if(value != null){
-                /*for(var i = 0; i < _currList.length; i++){
-                    console.log(_currList[i].name)
-                    if(value == _currList[i].name){
-                        item = _currList[i];
-                        console.log("found")
-                        break;
-                    }
-                }*/
                 var item = _currList[value]
                 $('#selectFeature').append($(document.createElement("option"))
                     .attr("value", _featureList.length)
@@ -306,16 +602,42 @@ $(function(){
     ;
     
     
-
+    // Appends for Select, Description, Settings, and Save / Edit buttons
     newAnomaliesDiv.append(anomalyList);
     newAnomaliesDiv.append(anomalyDescription);
     newAnomaliesDiv.append(settingsDiv);
     newAnomaliesDiv.append(saveAnomaly);
     newAnomaliesDiv.append(editButton);
 
+    // Settings append. Divs for full and region edits
     settingsDiv.append(fullDetectionSettingsDiv);
     settingsDiv.append(regionDetectionSettingsDiv);
-    fullDetectionSettingsDiv.append(maxLevelTxt);
+
+    // Setting Options appends for Full edit
+    fullDetectionSettingsDiv.append(maxLabel);
+    fullDetectionSettingsDiv.append(maxLevelSel);
+    fullDetectionSettingsDiv.append(maxHelp);
+    maxHelp.append(maxHelpDivContent);
+    fullDetectionSettingsDiv.append(minLabel);
+    fullDetectionSettingsDiv.append(minLevelSel); 
+    fullDetectionSettingsDiv.append(minHelp);
+    minHelp.append(minHelpDivContent);
+    fullDetectionSettingsDiv.append(thresholdLabel);
+    fullDetectionSettingsDiv.append(thresholdSel);
+    fullDetectionSettingsDiv.append(thresholdHelp);
+    thresholdHelp.append(thresholdHelpDivContent);
+    fullDetectionSettingsDiv.append(validateFullButton);
+
+    // Setting Options appends for Region edit
+    regionDetectionSettingsDiv.append(splitsLabel)
+    regionDetectionSettingsDiv.append(minSplitsSel)
+    regionDetectionSettingsDiv.append(splitsHelp)
+    splitsHelp.append(splitsHelpDivContent)
+    regionDetectionSettingsDiv.append(thresholdRegionLabel);
+    regionDetectionSettingsDiv.append(thresholdRegionSel);
+    regionDetectionSettingsDiv.append(thresholdRegionHelp);
+    thresholdRegionHelp.append(thresholdRegionHelpDivContent);
+    regionDetectionSettingsDiv.append(validateRegionButton)
     ///////////////////////////////////////////////////////////////////////////////////////
 
     var AnomPopout = $('<div>', {id: "AnomPopout"})
