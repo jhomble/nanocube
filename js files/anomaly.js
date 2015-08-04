@@ -1,7 +1,8 @@
 // change to the name of your nanocube server port here
 // time start and end for the timeline of data
-var timestart = "1";
-var timeend = "9";
+var timestart = "0";
+var numtimebins = "9";
+var groupsize = "1";
 // defaults for min and max level | 2 and 12
 var minlevel = "2";
 var maxlevel = "12";
@@ -29,10 +30,22 @@ function fullanomalydetection(){
     $('#runbutton').prop("disabled",true);
     $('#loadingBar').show()
     $("#loadingmessage").show()
-    console.log("actual")
-    console.log(minlevel)
-    var dataToSend = { portnum: port , timestart: timestart, timeend: timeend, minlevel : minlevel , maxlevel : maxlevel }
-    $.ajax({
+    var categories = constrainer.getCategories();
+    categories = (categories === undefined) ? null : categories;
+    var dataToSend = dataToSend = { 
+        portnum: port,
+        timestart: timestart,
+        numtimebins: numtimebins,
+        minlevel : minlevel,
+        maxlevel : maxlevel,
+        stdev: threshold,
+        groupsize: groupsize,
+        histograms: categories,
+        eventTypes: eventTypes,
+        timeSelect: timeseries.getSelectRange() }
+    
+	
+	$.ajax({
         url: "/cgi-bin/fullanomaly.py",
         type: "POST",
         data: JSON.stringify(dataToSend),
@@ -75,65 +88,72 @@ function fullanomalydetection(){
 
 function selectedAnomalyDetection(){
     
-    $('#runbutton').prop("disabled",true);
-    $('#loadingBar').show()
-    $("#loadingmessage").show()
-
-    var newFeature = createFeatureFromCurrent();
-    newFeature.name = "Run # " + _index.toString() + " " ;
-    _index = _index + 1;
-    var tiles  = constrainer.getTiles();
     if (tiles == null){
         alert("please choose a region to run detection on");
     }
-    //var tiles  = constrainer.getTiles();
-    //var dataToSend = { tileSelection: tiles };
-    //console.log(newFeature);
-    var dataToSend = { feature: newFeature , portnum: port , timestart: timestart, timeend: timeend}
-    $.ajax({
-        url: "/cgi-bin/regionanomaly.py",
-        type: "POST",
-        data: JSON.stringify(dataToSend),
-        success: function(response){
-            $('#runbutton').prop("disabled",false);
-            $('#loadingBar').hide()
-            $("#loadingmessage").hide()
-            console.log(response)
-            var list = []
-            list = JSON.parse(response)
-            if (tiles.length != 4){
-                alert("No zooming was done for this anomaly detection. For zooming please use the square tool")
-                console.log(response)
-            }
-            else if (tiles[0]['x'] == tiles[1]['x'] && tiles[2]['x'] == tiles[3]['x'] && tiles[0]['y'] == tiles[3]['y'] && tiles[1]['y'] == tiles[2]['y']){
-                alert("Region detection run with zooming")
-            }
-            else {
-                alert("No zooming was done for this anomaly detection. For zooming please use the square tool")
-            }
-            //console.log(list)
-            for (var i = 0; i < list.length; i++){
-                var item = list[i];
-                //console.log(item)
-            
-                $("#anomalyList").append( $(document.createElement("option"))
-                    .text(item.name)
-                    .attr("value", _currList.length)
-                );
-                
-            _currList.push(item);
-            hideFeatureSaveDialog();
-            }
-            
-            //console.log(response)
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            //alert("Feature could not be added on server!");
-            console.log(errorThrown)
-            console.log(textStatus)
-        }
-    });
+    else {
+        
+        var newFeature = createFeatureFromCurrent();
+        newFeature.name = "Run # " + _index.toString() + " " ;
+        _index = _index + 1;
+        var tiles  = constrainer.getTiles();
+    
+        var dataToSend = {
+            feature: newFeature ,
+            portnum: port,
+            timestart: timestart,
+            numtimebins: numtimebins,
+            groupsize: groupsize,
+    		eventTypes: eventTypes
+        };
+        $('#runbutton').prop("disabled",true);
+        $('#loadingBar').show()
+        $("#loadingmessage").show()
 
+        $.ajax({
+            url: "/cgi-bin/regionanomaly.py",
+            type: "POST",
+            data: JSON.stringify(dataToSend),
+            success: function(response){
+                $('#runbutton').prop("disabled",false);
+                $('#loadingBar').hide()
+                $("#loadingmessage").hide()
+                console.log(response)
+                var list = []
+                list = JSON.parse(response)
+                if (tiles.length != 4){
+                    alert("No zooming was done for this anomaly detection. For zooming please use the square tool")
+                    console.log(response)
+                }
+                else if (tiles[0]['x'] == tiles[1]['x'] && tiles[2]['x'] == tiles[3]['x'] && tiles[0]['y'] == tiles[3]['y'] && tiles[1]['y'] == tiles[2]['y']){
+                    alert("Region detection run with zooming")
+                }
+                else {
+                    alert("No zooming was done for this anomaly detection. For zooming please use the square tool")
+                }
+                //console.log(list)
+                for (var i = 0; i < list.length; i++){
+                    var item = list[i];
+                    //console.log(item)
+                
+                    $("#anomalyList").append( $(document.createElement("option"))
+                        .text(item.name)
+                        .attr("value", _currList.length)
+                    );
+                    
+                _currList.push(item);
+                hideFeatureSaveDialog();
+                }
+                
+                //console.log(response)
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                //alert("Feature could not be added on server!");
+                console.log(errorThrown)
+                console.log(textStatus)
+            }
+        });
+    }
 }
 
 function addAnomalyButton(){

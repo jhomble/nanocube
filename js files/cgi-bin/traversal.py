@@ -10,10 +10,48 @@ q = Queue.Queue()
 initQ = Queue.Queue()
 selectedQ = Queue.Queue()
 splits = 0
+currentlevel = 1
 
-port = ""
-timestart = ""
-timeend = ""
+
+
+def newprocessSelected(coords, listQ, currlev, minSplits):
+	global currentlevel
+	if (currlev > currentlevel):
+		currentlevel += 1
+
+	if (currentlevel <= minSplits):
+		boxes = calculateBoxes(coords[0], coords[1], coords[2], coords[3], coords[4])
+		# Check Top Right
+		TR = checkSelectedCorners((boxes[0])[0], (boxes[0])[1], (boxes[0])[2], (boxes[0])[3], (boxes[0])[4])
+		# Check Top Left
+		TL = checkSelectedCorners((boxes[1])[0], (boxes[1])[1], (boxes[1])[2], (boxes[1])[3], (boxes[1])[4])
+		# Check Bottom Right
+		BR = checkSelectedCorners((boxes[2])[0], (boxes[2])[1], (boxes[2])[2], (boxes[2])[3], (boxes[2])[4])
+		# Check Bottom Left
+		BL = checkSelectedCorners((boxes[3])[0], (boxes[3])[1], (boxes[3])[2], (boxes[3])[3], (boxes[3])[4])
+		found = TL + TR + BR + BL
+		while len(listQ) != 0:
+			anomaly = listQ.pop(0)
+			if found.count(anomaly) != 1:
+				#print "anomaly at " + str(coords[0]) + ", " + str(coords[1]) + ", " + str(coords[2]) + ", " + str(coords[3]) + ", " + str(coords[4]) + " : " + str(anomaly) 
+				anomlist1.append((coords[0], coords[1], coords[2], coords[3], coords[4], anomaly))
+				while TR.count(anomaly) != 0:
+					TR.remove(anomaly)
+				while TL.count(anomaly) != 0:
+					TL.remove(anomaly)
+				while BR.count(anomaly) != 0:
+					BR.remove(anomaly)
+				while BL.count(anomaly) != 0:
+					BL.remove(anomaly)
+
+		quad = ((boxes[0])[0], (boxes[0])[1], (boxes[0])[2], (boxes[0])[3], (boxes[0])[4])                           
+		q.put((quad,TR, currentlevel+1))
+		quad = ((boxes[1])[0], (boxes[1])[1], (boxes[1])[2], (boxes[1])[3], (boxes[1])[4])
+		q.put((quad,TL, currentlevel+1))			
+		quad = ((boxes[2])[0], (boxes[2])[1], (boxes[2])[2], (boxes[2])[3], (boxes[2])[4])
+		q.put((quad,BR, currentlevel+1))
+		quad = ((boxes[3])[0], (boxes[3])[1], (boxes[3])[2], (boxes[3])[3], (boxes[3])[4])
+		q.put((quad,BL, currentlevel+1))
 
 ################################################################################################
 # The selected box does not zoom in any further levels, just making smaller boxes on the level it is started on
@@ -44,32 +82,34 @@ def processSelected(coords, listQ, minSplits):
 			while BL.count(anomaly) != 0:
 				BL.remove(anomaly)
 
-	if (TR and (coords[1] - coords[0]) > 50 and (coords[3] - coords[2]) > 50) or splits < minSplits:
+	if (TR and (coords[1] - coords[0]) > 1 and (coords[3] - coords[2]) > 1) or splits < minSplits:
 		quad = ((boxes[0])[0], (boxes[0])[1], (boxes[0])[2], (boxes[0])[3], (boxes[0])[4])                           
 		q.put((quad,TR))
-	if (TL and (coords[1] - coords[0]) > 50 and (coords[3] - coords[2]) > 50) or splits < minSplits:
+	if (TL and (coords[1] - coords[0]) > 1 and (coords[3] - coords[2]) > 1) or splits < minSplits:
 		quad = ((boxes[1])[0], (boxes[1])[1], (boxes[1])[2], (boxes[1])[3], (boxes[1])[4])
 		q.put((quad,TL))
-	if (BR and (coords[1] - coords[0]) > 50 and (coords[3] - coords[2]) > 50) or splits < minSplits:
+	if (BR and (coords[1] - coords[0]) > 1 and (coords[3] - coords[2]) > 1) or splits < minSplits:
 		quad = ((boxes[2])[0], (boxes[2])[1], (boxes[2])[2], (boxes[2])[3], (boxes[2])[4])
 		q.put((quad,BR))
-	if (BL and (coords[1] - coords[0]) > 50 and (coords[3] - coords[2]) > 50) or splits < minSplits:
+	if (BL and (coords[1] - coords[0]) > 1 and (coords[3] - coords[2]) > 1) or splits < minSplits:
 		quad = ((boxes[3])[0], (boxes[3])[1], (boxes[3])[2], (boxes[3])[3], (boxes[3])[4])
 		q.put((quad,BL))
 
 ################################################################################################
 # Given the quadrent of a selected area, create the url and process it
 def checkSelectedCorners(x1, x2, y1, y2, z):
-
+	print "hi"
 	anomaly = []
-	url = urlmakers.urlBoxMaker(x1, x2, y1, y2, z, port, timestart, timeend)
+	url = urlmakers.urlBoxMaker(x1, x2, y1, y2, z, histogramglob)
 	#print url
 	try:
+		print "hi"
 		data = urlmakers.processURL(url)
+		print data
 		anomaly = anamolyDetection.anomalyDetector(data)
 	except ValueError:
 		pass
-		#print "error in processURL"
+		
 	
 	return anomaly
 
@@ -167,28 +207,23 @@ def processSquare(coords, listQ, maxLevel, init):
 # Pass in the data of the box to an anomaly detector and return the results of he anomalies
 def checkCorners(x, y, z):
 	anomaly = []
-	url = urlmakers.urlMaker(x, y, z, port, timestart, timeend)
-	#print url
+	url = urlmakers.urlMaker(x, y, z, histogramglob)
+
 	try:
 		data = urlmakers.processURL(url)
 		anomaly = anamolyDetection.anomalyDetector(data)
 	except ValueError:
 		pass
-		#print "error in processURL"
 	#BOOLEAN T/F based if anamoly found
 	
 	return anomaly
 
 ################################################################################################
 # Run the anomaly detection/traversal on the entire map
-def initializeEntireMap(minLevel, maxLevel, portn , tstart, tend):
+def initializeEntireMap(minLevel, maxLevel, histogram):
 	
-	global port
-	global timestart
-	global timeend
-	port = portn
-	timestart = tstart
-	timeend = tend
+	global histogramglob
+	histogramglob = histogram
 
 	runEntireMap(minLevel)
 	init = False
@@ -219,18 +254,16 @@ def runEntireMap(minLevel):
 
 ################################################################################################
 # Run the anomaly detection/traversal on the selected coordinates
-def initializeSelectedMap(coords, maxLevel):
-	runSelectedMap(coords, minLevel)
+#def initializeSelectedMap(coords, maxLevel):
+#	runSelectedMap(coords, minLevel)
 
 ################################################################################################
 # Run the the initial que for the selected map
-def runSelectedMap(coords, minSplit, portn , tstart, tend):
-	global port
-	global timestart
-	global timeend
-	port = portn
-	timestart = tstart
-	timeend = tend
+def runSelectedMap(coords, minSplit, histogram):
+
+	global histogramglob
+	histogramglob = histogram
+
 	init = True
 	listQ = []
 	q.put((coords, listQ))
@@ -240,10 +273,31 @@ def runSelectedMap(coords, minSplit, portn , tstart, tend):
 		#print anomlist1
 	return anomlist1
 
+def newrunSelected(coords, minSplit, histogram):
+	global histogramglob
+	histogramglob = histogram
+	
+	newx1 = 32*(coords[0])
+	newx2 = 32*(coords[1])
+	newy1 = 32*(coords[2])
+	newy2 = 32*(coords[3])
+	newlevel = 5+coords[4]
+	newcoords = (newx1, newx2, newy1, newy2, newlevel)
+	listQ = []
+	q.put((coords, listQ, 0))
+	while not q.empty():
+		bufferQ = q.get()
+		newprocessSelected(bufferQ[0], bufferQ[1], bufferQ[2], minSplit)
 
-def runPolygonSelection(coordslist, port, tstart, tend):
+	return anomlist1
 
-	url = urlmakers.urlPolygonMaker(coordslist, port, tstart, tend)
+
+def runPolygonSelection(coordslist, histogram):
+
+	global histogramglob
+	histogramglob = histogram
+
+	url = urlmakers.urlPolygonMaker(coordslist, histogram)
 	#print url
 	anomaly = []
 	try:

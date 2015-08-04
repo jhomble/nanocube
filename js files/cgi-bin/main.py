@@ -2,7 +2,13 @@ import urllib, json, Queue, math
 import sys
 import traversal
 import urlmakers
-
+#Global string which represents the category query. Global so it only needs to be constructed once
+histogramstring = ""
+gport = "29502"
+gbinstart = "0"
+gnumgroups = "9"
+ggroupsize = "1"
+gstdevmult = 2.5
 class coord:
 	def __init__(self, x, y, z):
 		self.x = x
@@ -11,7 +17,9 @@ class coord:
 
 ################################################################################################
 
+#This function converts a box's coordinate's to latitude and longitude
 def convertCoords(x, y, level):
+
 	flX = float(x)
 	flY = float(y)
 	flL = float(level)
@@ -23,40 +31,75 @@ def convertCoords(x, y, level):
 
 ################################################################################################
 
-def boxAnomaly(x1, x2, y1, y2, z, port , tstart, tend):
+# Function for anomaly detection on a selected region of the map
+def boxAnomaly(x1, x2, y1, y2, z, port , bin_start, group_size, num_groups, histogram):
+	global gport
+	global gbinstart
+	global ggroupsize
+	global gnumgroups
+	gport = port
+	gbinstart = bin_start
+	ggroupsize = group_size
+	gnumgroups = num_groups
+
 	coords = (x1, x2, y1, y2, z)
 	if x2 - x1 > 4 and y2 - y1 > 4:
-		minSplit = 2
+		minSplit = 3
 	else:
 		minSplit = 0
-	anomlist = traversal.runSelectedMap(coords, minSplit, port , tstart, tend)
+	#nomlist = traversal.runSelectedMap(coords, minSplit, histogram)
+	anomlist = traversal.newrunSelected(coords, 4, histogram)
 	return anomlist
 
 ################################################################################################
 
-
-def polygonAnomaly(coordlist, port, tstart, tend):
+# Function for anomaly detection if the polygon tool is used for selecting a region
+def polygonAnomaly(coordlist, port,  bin_start, group_size, num_groups, histogram):
+	global gport
+	global gbinstart
+	global ggroupsize
+	global gnumgroups
+	gport = port
+	gbinstart = bin_start
+	ggroupsize = group_size
+	gnumgroups = num_groups
 	
-	anomalies = traversal.runPolygonSelection(coordlist, port, tstart, tend)
+	anomalies = traversal.runPolygonSelection(coordlist, histogram)
 	return anomalies
 
 
 ################################################################################################
 
-
-def fullAnomaly(port, timestart, timeend, minlevel, maxlevel):
-	#print "got into main fullanomaly"
-	a = traversal.initializeEntireMap(int(minlevel), int(maxlevel), port, timestart, timeend)
-	#print "did traversal initialize"
+# Function for full anomaly detection (entire map)
+def fullAnomaly(port,  bin_start, group_size, num_groups, minlevel, maxlevel,histogram, stdevmult):
+	global gport
+	global gbinstart
+	global ggroupsize
+	global gnumgroups
+	global gstdevmult
+	gport = port
+	gbinstart = bin_start
+	ggroupsize = group_size
+	gnumgroups = num_groups
+	gstdevmult = stdevmult
+	#print stdev
+	a = traversal.initializeEntireMap(int(minlevel), int(maxlevel), histogram)
 	return a
 
 # Main function
+# There are other functions in this file because the CGI script has to call different functions based on what options 
+# were selected in the GUI. Can either be run through the command line or through the GUI
 # First initialze the queue
 # Process all entries in the queue until empty
 if __name__ == '__main__':
 
 	if len(sys.argv) == 1:
-		traversal.initializeEntireMap(2, 12)
+		#traversal.initializeEntireMap(2, 12)
+		coords = (544, 577, 1170, 1223, 11)
+
+		anom = traversal.newrunSelected(coords, 4, None)
+		print anom
+
 	elif len(sys.argv) == 6: 
 
 		x1 = int(sys.argv[1])

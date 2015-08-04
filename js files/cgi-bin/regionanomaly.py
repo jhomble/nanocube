@@ -1,8 +1,9 @@
-#!python2
+#!/usr/bin/python
 import sys, json, platform, os, urllib, time
 from traversal import main
 import cgitb
 import datetime
+from copy import deepcopy
 cgitb.enable()
 #print the header
 print "Content-Type: text/plain\n\n",
@@ -57,10 +58,48 @@ try:
         secondsperbin = 60*60*24
         msecondsperbin = 1000*60*60*24
 
+    #This url is for getting the start/end time bin information
+    url  = "http://nanocube.govspc.att.com:" + port + "/tquery"
+    #default, change to user defined eventually
+    group_size = int(jsonIn['groupsize'])
+    #get the selected time series or the full time series if none selected
+    if(jsonIn['numtimebins'] == None):
+        if( jsonIn['feature']['timeSelect']['startMilli'] != None ):
+            tselectstart = long(jsonIn['feature']['timeSelect']['startMilli'])
+            tselectend = long(jsonIn['feature']['timeSelect']['endMilli'])
+            te = tselectend - tselectstart
+            window = int(te/msecondsperbin)
+            starting_bucket = int((tselectstart - (FIRSTDATE*1000))/(msecondsperbin))
+            #print starting_bucket
+            #print window
+        else:
+            response = urllib.urlopen(url)
+            data = json.loads(response.read())
+            bothnums =  "0000000000000000" + data['root']['children'][0]['addr']
+            bothnums = bothnums[-16:]
+            lasteight = int(bothnums[-8:], 16)
+            # first 8
+            starting_bucket = int(bothnums,16) >> 32
+            window = (lasteight - starting_bucket)/group_size
+    else:
+        window = jsonIn['numtimebins']
+        starting_bucket = jsonIn['timestart']
+
+    histograms = currjson['histograms']
+    eventTypes = jsonIn['eventTypes']
+    newhist = deepcopy(histograms)
+
+    #Need to convert the histograms dictionary to the values that will be queried
+    if (histograms != None):
+        keys  = histograms.keys()
+        for i in range(0, len(histograms)):
+            for j in range(0, len(histograms[keys[i]])):
+                currindex = eventTypes.index(histograms[keys[i]][j])
+                newhist[keys[i]][j] = currindex
     #this checks to see if region was drawn with the square tool
     if (boxlist[0]['x'] == boxlist[1]['x'] and boxlist[2]['x'] == boxlist[3]['x'] and boxlist[0]['y'] == boxlist[3]['y'] and boxlist[1]['y'] == boxlist[2]['y']):
-   
-        a = main.boxAnomaly(x1, x2, y1, y2, z, port, jsonIn['timestart'], jsonIn['timeend']) #this is the list of anomalies
+        a = main.boxAnomaly(x1, x2, y1, y2, z, port, starting_bucket , group_size , window, newhist) 
+        #this is the list of anomalies
         #Starting to build the dictionary which will be converted to json
         anomlist = []
         length = len(a)
@@ -88,6 +127,8 @@ try:
                 #current time in seconds since epoch
                 #timebucket multiplier is the integer which determines the bucket size. Ex: 2011-12-08_00:00:00_2d 2 would be the multiplier
                 currentTime = FIRSTDATE + (anomaly*secondsperbin*timebucketmultiplier)
+
+                #Values are multiplied by 32 to draw a more accurate box. Level is increased by 5 so the same box is drawn
                 if j == 0:
                     currdict["x"] = x1
                     currdict["y"] = y1
@@ -117,21 +158,23 @@ try:
             anomdict['timeSelect'] = dict()
             anomdict['timeZoom'] = dict()
             #These are where the timeline while zoom in on
-            anomdict['timeSelect']['startMilli'] = currentTime*1000 - msecondsperbin/2
-            anomdict['timeSelect']['endMilli'] = currentTime*1000 + msecondsperbin/2
+            anomdict['timeSelect']['startMilli'] = long(currentTime*1000 - msecondsperbin)
+            anomdict['timeSelect']['endMilli'] = long(currentTime*1000 + msecondsperbin)
             anomdict['timeZoom']['startMilli'] = None
             anomdict['timeZoom']['endMilli'] = None
             anomdict['zoomLevel'] = zoomlevel
-                    
+            anomdict['histograms'] = currjson['histograms']
+
             anomlist.append(anomdict)
         
         print json.dumps(anomlist)
-        #print anomlist
+
 
     #this statement will run if the polygon tool was used to draw a region instead of the square tool
     else:
+
         #list of anomalies
-        anomalies = main.polygonAnomaly(boxlist, port, jsonIn['timestart'], jsonIn['timeend'])
+        anomalies = main.polygonAnomaly(boxlist, port, starting_bucket , group_size , window, newhist)
         polygonAnomlist = []
         xavg = 0
         yavg = 0
@@ -162,14 +205,15 @@ try:
             currpolygondict['description'] = "Time bucket: "+ str(anomaly) +  " \nthis anomaly occured around " + str(datetime.datetime.fromtimestamp(currentTime))
             currpolygondict['timeSelect'] = dict()
             currpolygondict['timeZoom'] = dict()
-            currpolygondict['timeSelect']['startMilli'] = long(currentTime*1000 - msecondsperbin/2)
-            currpolygondict['timeSelect']['endMilli'] = long(currentTime*1000 + msecondsperbin/2)
+            currpolygondict['timeSelect']['startMilli'] = long(currentTime*1000 - msecondsperbin)
+            currpolygondict['timeSelect']['endMilli'] = long(currentTime*1000 + msecondsperbin)
             currpolygondict['timeZoom']['startMilli'] = None
             currpolygondict['timeZoom']['endMilli'] = None
-            currpolygondict['zoomLevel'] = 3
             currpolygondict['geoCenter'] = [latlon[0], latlon[1]]
             currpolygondict['resolution'] = 7
+            currpolygondict['histograms'] = currjson['histograms']
             polygonAnomlist.append(currpolygondict)
+
 
         #The response in the javascript is what is printed from this script
         print json.dumps(polygonAnomlist)
