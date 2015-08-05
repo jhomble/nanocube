@@ -33,4 +33,4 @@ cgi-bin:
     this file manages how anomalies are searched for, processing the ques, and sending the correct
       information to urlmakers and anaomalyDetection
 
-jhomble7@gmail.com
+jhomble7@gmail.com 
