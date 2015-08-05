@@ -1,6 +1,7 @@
-#!python2
+#!/usr/bin/python
 import sys, json, platform, os, urllib, time
-from traversal import main
+import main
+from traversal import convertCoords
 import cgitb
 import datetime
 from copy import deepcopy
@@ -9,8 +10,15 @@ cgitb.enable()
 print "Content-Type: text/plain\n\n",
 
 try:
-	# load input
-	jsonIn = json.load(sys.stdin)
+	#load input
+	if platform.system() == "Windows": #for development
+		x = int(sys.stdin.read(5))
+		data = sys.stdin.read(x)
+		jsonIn = json.loads(data)
+	else: #platform is linux
+		x = int(sys.stdin.read(5))
+		data = sys.stdin.read(x)
+		jsonIn = json.loads(data)
 	# variables from features.js
 	port = jsonIn['portnum']
 	timestart = jsonIn['timestart']
@@ -64,6 +72,7 @@ try:
 			tselectstart = long(jsonIn['timeSelect']['startMilli'])
 			tselectend = long(jsonIn['timeSelect']['endMilli'])
 			te = tselectend - tselectstart
+			lasteight = int((tselectend - (FIRSTDATE*1000))/(msecondsperbin))
 			window = int(te/msecondsperbin)
 			starting_bucket = int((tselectstart - (FIRSTDATE*1000))/(msecondsperbin))
 			#print starting_bucket
@@ -93,6 +102,8 @@ try:
 		level = int(anomlist[i][2])
 		anomaly = int(anomlist[i][3])
 
+		currentTime = FIRSTDATE + (anomaly*secondsperbin*timebucketmultiplier)
+
 		dict1 = dict()
 		dict2 = dict()
 		dict3 = dict()
@@ -120,31 +131,41 @@ try:
 		# use this name to get the run number
 		# anomdict['name'] = jsonIn['feature']['name'] + "anomaly" + str(i+1)
 
-		latlon = main.convertCoords(currx, curry, level)    
+		latlon = convertCoords(currx, curry, level)    
 		geo = [latlon[0],latlon[1]]
 		currdict['geoCenter'] = geo
 		currdict['zoomLevel'] = level-1
 		currdict['resolution'] = 7
-		currdict['description'] = "anomaly at level" + str(level) 
-		currentTime = FIRSTDATE + (anomaly*secondsperbin*timebucketmultiplier)
+		currdict['description'] = "Anomaly found at nanocube level " + str(level) + " and at day " + str(datetime.datetime.fromtimestamp(currentTime))
 		currdict['timeSelect'] = dict()
 		currdict['timeZoom'] = dict()
-		currdict['timeSelect']['startMilli'] = long(currentTime*1000 - msecondsperbin) 
-		currdict['timeSelect']['endMilli'] =  long(currentTime*1000 + msecondsperbin)
-		currdict['timeZoom']['startMilli'] = None
-		currdict['timeZoom']['endMilli'] = None
+		#These are where the timeline while zoom is on
+		currdict['timeSelect']['startMilli'] = long(currentTime*1000 - msecondsperbin)
+		currdict['timeSelect']['endMilli'] = long(currentTime*1000 + msecondsperbin)
+
+		#zooming calculation
+		if window * 0.10 > 3:
+			windowpercent = int(window * 0.10)
+		else:
+			windowpercent = 3
+		if anomaly - (windowpercent) <= 0:
+			starttime = long(1000* (FIRSTDATE + (secondsperbin*timebucketmultiplier)))
+		else:
+			starttime = long(currentTime*1000 - (windowpercent*msecondsperbin))
+		if anomaly + (windowpercent) > lasteight:
+			endtime = long(1000* (FIRSTDATE + (lasteight*secondsperbin*timebucketmultiplier)))
+		else:
+			endtime = long(currentTime*1000 + (windowpercent*msecondsperbin))
+		currdict['timeZoom']['startMilli'] = starttime
+		currdict['timeZoom']['endMilli'] = endtime
+
+
 		currdict['histograms'] = jsonIn['histograms']
 		# add it to the output
 		jsonlist.append(currdict)
 
 	# like returning from python to js
 	print json.dumps(jsonlist)
-
-	#if it is not windows it will not work
-	if platform.system() != "Windows":
-		#platform is linux
-		print os.getcwd()
-		print "Failure"
 	
 
 except SystemExit:

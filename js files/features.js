@@ -317,7 +317,7 @@ $(function(){
         .css("background-color", "white")
         .css("border", "2px solid orange")
     ;
-    /*var removeFeatureButton = $('<button>', { id: "removeFeatureButton" })
+    var removeFeatureButton = $('<button>', { id: "removeFeatureButton" })
         .addClass("btn btn-danger")
         .css("width", "100%")
         .css("height", "20%")
@@ -325,12 +325,12 @@ $(function(){
         .click(function(){
             deleteCurrentFeature()
         })
-    ;*/
+    ;
     headerDiv.append(saveFeatureHeader)
     mainDiv.append(headerDiv)
     mainDiv.append(selectList)
     mainDiv.append(description)
-    //mainDiv.append(removeFeatureButton)
+    mainDiv.append(removeFeatureButton)
     $("body").append(mainDiv)
 
     //load the feature file

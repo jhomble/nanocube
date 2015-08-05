@@ -13,7 +13,7 @@ def anomalyDetector(data):
 	std = 0
 	test = []
 	multiplier = main.gstdevmult
-	#stdevmult = int(main.gstdevmult)
+	
 	#Parsing the json response from the server to get the time buckets and their values
 	for x in range(0, len(data)):
 		#converting the hex bucket number to a decimal number

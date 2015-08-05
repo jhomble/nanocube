@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import sys, json, platform, os, urllib, time
-from traversal import main
+from traversal import convertCoords
+import main
 import cgitb
 import datetime
 from copy import deepcopy
@@ -9,14 +10,23 @@ cgitb.enable()
 print "Content-Type: text/plain\n\n",
 
 try:
-    jsonIn = json.load(sys.stdin)
+    #load input
+    if platform.system() == "Windows": #for development
+        x = int(sys.stdin.read(5))
+        data = sys.stdin.read(x)
+        jsonIn = json.loads(data)
+    else: #platform is linux
+        x = int(sys.stdin.read(5))
+        data = sys.stdin.read(x)
+        jsonIn = json.loads(data)
     
     # port number from features.js
     port = jsonIn['portnum']
     currjson = jsonIn['feature']
     #boxlist is the list of currently selected tiles
     boxlist = jsonIn['feature']['tileSelection']
-
+    threshold = float(jsonIn['stdev'])
+    minSplits  = int(jsonIn['minSplits'])
     #These are the points which will be checked to see if the box was a rectangle. 
     #This allows us to know which algorithm to run
     x1 = boxlist[0]['x']
@@ -68,6 +78,7 @@ try:
             tselectstart = long(jsonIn['feature']['timeSelect']['startMilli'])
             tselectend = long(jsonIn['feature']['timeSelect']['endMilli'])
             te = tselectend - tselectstart
+            lasteight = int((tselectend - (FIRSTDATE*1000))/(msecondsperbin))
             window = int(te/msecondsperbin)
             starting_bucket = int((tselectstart - (FIRSTDATE*1000))/(msecondsperbin))
             #print starting_bucket
@@ -98,7 +109,7 @@ try:
                 newhist[keys[i]][j] = currindex
     #this checks to see if region was drawn with the square tool
     if (boxlist[0]['x'] == boxlist[1]['x'] and boxlist[2]['x'] == boxlist[3]['x'] and boxlist[0]['y'] == boxlist[3]['y'] and boxlist[1]['y'] == boxlist[2]['y']):
-        a = main.boxAnomaly(x1, x2, y1, y2, z, port, starting_bucket , group_size , window, newhist) 
+        a = main.boxAnomaly(x1, x2, y1, y2, z, port, starting_bucket , group_size , window, newhist, threshold, minSplits) 
         #this is the list of anomalies
         #Starting to build the dictionary which will be converted to json
         anomlist = []
@@ -147,7 +158,7 @@ try:
             #need to find the center of of the box in latitude/longitude
             xavg = (x1+x2)/2
             yavg = (y1+y2)/2
-            latlon = main.convertCoords(xavg, yavg, currlevel)
+            latlon = convertCoords(xavg, yavg, currlevel)
             #these coordinates are the geocenter (where the map will center on) 
             geo = [latlon[0],latlon[1]]
 
@@ -157,11 +168,29 @@ try:
             anomdict['resolution'] = currjson['resolution']
             anomdict['timeSelect'] = dict()
             anomdict['timeZoom'] = dict()
-            #These are where the timeline while zoom in on
+            #These are where the timeline while zoom is on
             anomdict['timeSelect']['startMilli'] = long(currentTime*1000 - msecondsperbin)
             anomdict['timeSelect']['endMilli'] = long(currentTime*1000 + msecondsperbin)
-            anomdict['timeZoom']['startMilli'] = None
-            anomdict['timeZoom']['endMilli'] = None
+
+
+            #zooming calculation
+            if window * 0.10 > 3:
+                windowpercent = int(window * 0.10)
+            else:
+                windowpercent = 3
+            if anomaly - (windowpercent) <= 0:
+                starttime = long(1000* (FIRSTDATE + (secondsperbin*timebucketmultiplier)))
+            else:
+                starttime = long(currentTime*1000 - (windowpercent*msecondsperbin))
+            if anomaly + (windowpercent) > lasteight:
+                endtime = long(1000* (FIRSTDATE + (lasteight*secondsperbin*timebucketmultiplier)))
+            else:
+                endtime = long(currentTime*1000 + (windowpercent*msecondsperbin))
+            anomdict['timeZoom']['startMilli'] = starttime
+            anomdict['timeZoom']['endMilli'] = endtime
+
+
+
             anomdict['zoomLevel'] = zoomlevel
             anomdict['histograms'] = currjson['histograms']
 
@@ -174,7 +203,7 @@ try:
     else:
 
         #list of anomalies
-        anomalies = main.polygonAnomaly(boxlist, port, starting_bucket , group_size , window, newhist)
+        anomalies = main.polygonAnomaly(boxlist, port, starting_bucket , group_size , window, newhist, threshold)
         polygonAnomlist = []
         xavg = 0
         yavg = 0
@@ -193,7 +222,7 @@ try:
         xcoord = xavg/(len(boxlist))
         ycoord = yavg/(len(boxlist))
 
-        latlon = main.convertCoords(xcoord, ycoord, boxlist[i]['level'])
+        latlon = convertCoords(xcoord, ycoord, boxlist[i]['level'])
 
         #creating the dictionary to convert to json
         for i in range(0, len(anomalies)):

@@ -65,7 +65,6 @@ def urlPolygonMaker(coordList, histogram):
 ################################################################################################
 # Given x,y,z coordinates of a box, formats the url to request the JSON
 def urlMaker(x, y, z, histogram):
-
 	base = "http://nanocube.govspc.att.com:"
 	base = base + main.gport
 	extenstion = '/query/pos='
