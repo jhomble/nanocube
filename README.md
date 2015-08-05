@@ -7,7 +7,7 @@ Julien Homble, Matthew Lipshultz, Andrew Clearly
 Further information about each file can be found within them
 Files that we modified:
 
-js files:
+js files
   features.js:
     Added a delete button on his select box and edited a few changes on how the list updates and changes. 
     Mostly cosmetic or reading/writing to featurelist.js
