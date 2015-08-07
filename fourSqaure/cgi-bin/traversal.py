@@ -151,7 +151,7 @@ def newprocessSelected(coords, listQ, currlev, minSplits):
 		found = TL + TR + BR + BL
 		while len(listQ) != 0:
 			anomaly = listQ.pop(0)
-			if found.count(anomaly) != 1 or currentlevel == minSplits:
+			if found.count(anomaly) != 1 or (currentlevel == minSplits and found.count(anomaly) != 0):
 				#print "anomaly at " + str(coords[0]) + ", " + str(coords[1]) + ", " + str(coords[2]) + ", " + str(coords[3]) + ", " + str(coords[4]) + " : " + str(anomaly) 
 				anomlist1.append((coords[0], coords[1], coords[2], coords[3], coords[4], anomaly))
 				while TR.count(anomaly) != 0:
@@ -227,7 +227,7 @@ def processSquare(coords, listQ, maxLevel, init):
 	found = TL + TR + BR + BL
 	while len(listQ) != 0:
 		anomaly = listQ.pop(0)
-		if(found.count(anomaly) != 1 or coords.z == maxLevel):
+		if(found.count(anomaly) != 1 or (coords.z == maxLevel and found.count(anomaly) != 0)):
 			if not init:
 				latlong = convertCoords(coords.x, coords.y, coords.z)
 				anomlist2.append((coords.x, coords.y, coords.z, anomaly))
