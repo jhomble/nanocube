@@ -2,7 +2,7 @@
 
 2015 AT&T Anomaly detection code
 
-Julien Homble, Matthew Lipshultz, Andrew Clearly
+Julien Homble, Matthew Lipshultz, Andrew Cleary
 
 Further information about each file can be found within them
 Files that we modified:
