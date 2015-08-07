@@ -70,7 +70,7 @@ function fullanomalydetection(){
 	$.ajax({
         url: "/cgi-bin/fullanomaly.py",
         type: "POST",
-        data: ("00000" + JSON.stringify(dataToSend).length).slice(-5) + JSON.stringify(dataToSend), 
+        data: ("0000000000" + JSON.stringify(dataToSend).length).slice(-10) + JSON.stringify(dataToSend), 
         //The extra zeroes prepended to our data sent to work around a problem in linux where reading from the standard in never saw an EOF and therefore would hang
         //In our CGI scripts we parse out the extra 0's and are left with the length of the data string. Then we read just the characters we need to prevent our script from hanging
         success: function(response){
@@ -144,7 +144,7 @@ function selectedAnomalyDetection(){
         $.ajax({
             url: "/cgi-bin/regionanomaly.py",
             type: "POST",
-            data: ("00000" + JSON.stringify(dataToSend).length).slice(-5) + JSON.stringify(dataToSend),
+            data: ("0000000000" + JSON.stringify(dataToSend).length).slice(-10) + JSON.stringify(dataToSend),
             //The extra zeroes prepended to our data sent to work around a problem in linux where reading from the standard in never saw an EOF and therefore would hang
             //In our CGI scripts we parse out the extra 0's and are left with the length of the data string. Then we read just the characters we need to prevent our script from hanging
             success: function(response){

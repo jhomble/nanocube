@@ -70,7 +70,7 @@ function fullanomalydetection(){
 	$.ajax({
         url: "/cgi-bin/fullanomaly.py",
         type: "POST",
-        data: ("00000" + JSON.stringify(dataToSend).length).slice(-5) + JSON.stringify(dataToSend), 
+        data: ("000000000000" + JSON.stringify(dataToSend).length).slice(-12) + JSON.stringify(dataToSend), 
         //The extra zeroes prepended to our data sent to work around a problem in linux where reading from the standard in never saw an EOF and therefore would hang
         //In our CGI scripts we parse out the extra 0's and are left with the length of the data string. Then we read just the characters we need to prevent our script from hanging
         success: function(response){
@@ -144,7 +144,7 @@ function selectedAnomalyDetection(){
         $.ajax({
             url: "/cgi-bin/regionanomaly.py",
             type: "POST",
-            data: ("00000" + JSON.stringify(dataToSend).length).slice(-5) + JSON.stringify(dataToSend),
+            data: ("000000000000" + JSON.stringify(dataToSend).length).slice(-12) + JSON.stringify(dataToSend),
             //The extra zeroes prepended to our data sent to work around a problem in linux where reading from the standard in never saw an EOF and therefore would hang
             //In our CGI scripts we parse out the extra 0's and are left with the length of the data string. Then we read just the characters we need to prevent our script from hanging
             success: function(response){
@@ -304,16 +304,16 @@ $(function(){
     ;
     // These are the options maxLevel can choose from
     var maxArr = [
-        {val : 5, text: '900 miles'},
-        {val : 6, text: '450 miles'},
-        {val : 7, text: '225 miles'},
-        {val : 8, text: '110 miles'},
-        {val : 9, text: '55 miles'},
-        {val : 10, text: '25 miles'},
-        {val : 11, text: '12 miles'},
-        {val : 12, text: '6 miles'},
-        {val : 13, text: '3 miles'},
-        {val : 14, text: '1.5 miles'},
+        {val : "5", text: '900 miles'},
+        {val : "6", text: '450 miles'},
+        {val : "7", text: '225 miles'},
+        {val : "8", text: '110 miles'},
+        {val : "9", text: '55 miles'},
+        {val : "10", text: '25 miles'},
+        {val : "11", text: '12 miles'},
+        {val : "12", text: '6 miles'},
+        {val : "13", text: '3 miles'},
+        {val : "14", text: '1.5 miles'},
         ];
     // Add the array options to the select box
     $(maxArr).each(function() {
@@ -364,11 +364,11 @@ $(function(){
     ;
     // Options for the min Level drop down box
     var minArr = [
-        {val : 0, text: '25,000 miles'},
-        {val : 1, text: '12,500 miles'},
-        {val : 2, text: '7,200 miles'},
-        {val : 3, text: '3,600 miles'},
-        {val : 4, text: '1,800 miles'},
+        {val : "0", text: '25,000 miles'},
+        {val : "1", text: '12,500 miles'},
+        {val : "2", text: '7,200 miles'},
+        {val : "3", text: '3,600 miles'},
+        {val : "4", text: '1,800 miles'},
         ];
     // Add the options to the drop down box
     $(minArr).each(function() {
@@ -419,15 +419,15 @@ $(function(){
     ;
     // Options for the threshold drop down
     var thresholdArr = [
-        {val : 1, text: '1'},
-        {val : 1.5, text: '1.5'},
-        {val : 2, text: '2'},
-        {val : 2.5, text: '2.5'},
-        {val : 3, text: '3'},
-        {val : 3.5, text: '3.5'},
-        {val : 4, text: '4'},
-        {val : 4.5, text: '4.5'},
-        {val : 5, text: '5'},
+        {val : "1", text: '1'},
+        {val : "1.5", text: '1.5'},
+        {val : "2", text: '2'},
+        {val : "2.5", text: '2.5'},
+        {val : "3", text: '3'},
+        {val : "3.5", text: '3.5'},
+        {val : "4", text: '4'},
+        {val : "4.5", text: '4.5'},
+        {val : "5", text: '5'},
         ];
     // Add the options to the drop down
     $(thresholdArr).each(function() {
@@ -557,12 +557,12 @@ $(function(){
     ;
     // options for min splits drop down box
     var splitsArr = [
-        {val : 0, text: '0'},
-        {val : 1, text: '1'},
-        {val : 2, text: '2'},
-        {val : 3, text: '3'},
-        {val : 4, text: '4'},
-        {val : 5, text: '5'},
+        {val : "0", text: '0'},
+        {val : "1", text: '1'},
+        {val : "2", text: '2'},
+        {val : "3", text: '3'},
+        {val : "4", text: '4'},
+        {val : "5", text: '5'},
         ];
     // add the options to min splits select
     $(splitsArr).each(function() {
@@ -612,15 +612,15 @@ $(function(){
     ;
     // options for the threshold drop down 
     var thresholdRegionArr = [
-        {val : 1, text: '1'},
-        {val : 1.5, text: '1.5'},
-        {val : 2, text: '2'},
-        {val : 2.5, text: '2.5'},
-        {val : 3, text: '3'},
-        {val : 3.5, text: '3.5'},
-        {val : 4, text: '4'},
-        {val : 4.5, text: '4.5'},
-        {val : 5, text: '5'},
+        {val : "1", text: '1'},
+        {val : "1.5", text: '1.5'},
+        {val : "2", text: '2'},
+        {val : "2.5", text: '2.5'},
+        {val : "3", text: '3'},
+        {val : "3.5", text: '3.5'},
+        {val : "4", text: '4'},
+        {val : "4.5", text: '4.5'},
+        {val : "5", text: '5'},
         ];
     // add the options to the threshold drop down
     $(thresholdRegionArr).each(function() {

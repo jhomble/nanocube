@@ -12,11 +12,11 @@ print "Content-Type: text/plain\n\n",
 try:
 	#load input
 	if platform.system() == "Windows": #for development
-		x = int(sys.stdin.read(5))
+		x = int(sys.stdin.read(12))
 		data = sys.stdin.read(x)
 		jsonIn = json.loads(data)
 	else: #platform is linux
-		x = int(sys.stdin.read(5))
+		x = int(sys.stdin.read(12))
 		data = sys.stdin.read(x)
 		jsonIn = json.loads(data)
 	# variables from features.js
@@ -87,8 +87,9 @@ try:
 			starting_bucket = int(bothnums,16) >> 32
 			window = (lasteight - starting_bucket)/group_size
 	else:
-		window = jsonIn['numtimebins']
-		starting_bucket = jsonIn['timestart']
+		window = int(jsonIn['numtimebins'])
+		starting_bucket = int(jsonIn['timestart'])
+		lasteight = starting_bucket + window
 	# run algorithm  - output: list of anomalies
 	anomlist = main.fullAnomaly(port, starting_bucket, group_size, window, minlevel, maxlevel, newhist, threshold)
 	#print anomlist

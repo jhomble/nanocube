@@ -12,11 +12,11 @@ print "Content-Type: text/plain\n\n",
 try:
     #load input
     if platform.system() == "Windows": #for development
-        x = int(sys.stdin.read(5))
+        x = int(sys.stdin.read(10))
         data = sys.stdin.read(x)
         jsonIn = json.loads(data)
     else: #platform is linux
-        x = int(sys.stdin.read(5))
+        x = int(sys.stdin.read(10))
         data = sys.stdin.read(x)
         jsonIn = json.loads(data)
     
